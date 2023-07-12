@@ -4,8 +4,9 @@ import Draggable from 'react-draggable';
 
 const StyledWindow = styled.div`
   position: absolute;
-  width: 300px;
-  height: 200px;
+  width: ${props => props.state === 'maximized' ? '100%' : '300px'};
+  height: ${props => props.state === 'maximized' ? '100%' : '200px'};
+  display: ${props => props.state === 'minimized' ? 'none' : 'block'};
   background-color: #fff;
   border: 1px solid #000;
   z-index: ${props => props.zIndex};
@@ -25,10 +26,10 @@ const WindowButton = styled.button`
   color: #fff;
 `;
 
-function Window({ children, title, minimize, maximize, close, zIndex, onClick }) {
+function Window({ children, title, minimize, maximize, close, zIndex, onClick, state }) {
   return (
     <Draggable>
-      <StyledWindow zIndex={zIndex} onClick={onClick}>
+      <StyledWindow zIndex={zIndex} onClick={onClick} state={state}>
         <TitleBar>
           <span>{title}</span>
           <div>
