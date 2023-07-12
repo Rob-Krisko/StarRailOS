@@ -9,9 +9,9 @@ const StyledTaskbar = styled.div`
   background-color: #282828;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 0 10px;
   box-sizing: border-box;
+  justify-content: flex-start;
 `;
 
 const StartButton = styled.button`
@@ -39,9 +39,10 @@ const Clock = styled.div`
   color: #fff;
   border-left: 1px solid #fff;
   padding-left: 10px;
+  margin-left: auto;
 `;
 
-function Taskbar({ toggleStartMenu, openApps }) {
+function Taskbar({ toggleStartMenu, openApps, restoreApp }) {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -53,7 +54,7 @@ function Taskbar({ toggleStartMenu, openApps }) {
     <StyledTaskbar>
       <StartButton onClick={toggleStartMenu}>Start</StartButton>
       {openApps.map((app, index) => (
-        <AppIcon key={index}>{app.name}</AppIcon>
+        <AppIcon key={index} onClick={() => restoreApp(app.id)}>{app.name}</AppIcon>
       ))}
       <Clock>{time.toLocaleTimeString()}</Clock>
     </StyledTaskbar>
