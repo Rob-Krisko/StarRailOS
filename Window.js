@@ -1,49 +1,45 @@
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { Rnd } from 'react-rnd';
-import { closeWindow, minimizeWindow, maximizeWindow, focusWindow } from './windowsSlice';
+import React from 'react';
+import styled from 'styled-components';
+import Draggable from 'react-draggable';
 
-function Window({ id }) {
-  const dispatch = useDispatch();
-  const window = useSelector(state => state.windows.find(win => win.id === id));
-  const [isMaximized, setIsMaximized] = useState(true); // assuming initial state as maximized
+const StyledWindow = styled.div`
+  position: absolute;
+  width: 300px;
+  height: 200px;
+  background-color: #fff;
+  border: 1px solid #000;
+  z-index: ${props => props.zIndex};
+`;
 
-  const handleClose = () => {
-    dispatch(closeWindow(id));
-  }
+const TitleBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  background-color: #000;
+  color: #fff;
+  padding: 2px 5px;
+`;
 
-  const handleMinimize = () => {
-    dispatch(minimizeWindow(id));
-  }
+const WindowButton = styled.button`
+  background: none;
+  border: none;
+  color: #fff;
+`;
 
-  const handleMaximize = () => {
-    setIsMaximized(!isMaximized);
-    dispatch(maximizeWindow({ id, isMaximized: !isMaximized }));
-  }
-
+function Window({ children, title, minimize, maximize, close, zIndex, onClick }) {
   return (
-    <Rnd 
-      style={{ border: '1px solid #ddd', backgroundColor: '#f0f0f0' }}
-      default={{
-        x: 0,
-        y: 0,
-        width: isMaximized ? window.innerWidth : window.innerWidth / 2,
-        height: isMaximized ? window.innerHeight : window.innerHeight / 2
-      }}
-      onDragStart={() => dispatch(focusWindow(id))}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px', borderBottom: '1px solid #ddd', backgroundColor: '#ddd' }}>
-        <h1 style={{ margin: 0 }}>{window.title}</h1>
-        <div>
-          <button onClick={handleMinimize}>-</button>
-          <button onClick={handleMaximize}>{isMaximized ? 'Resize' : 'Maximize'}</button>
-          <button onClick={handleClose}>X</button>
-        </div>
-      </div>
-      <div>
-        {/* Window content goes here */}
-      </div>
-    </Rnd>
+    <Draggable>
+      <StyledWindow zIndex={zIndex} onClick={onClick}>
+        <TitleBar>
+          <span>{title}</span>
+          <div>
+            <WindowButton onClick={(event) => { event.stopPropagation(); minimize(); }}>-</WindowButton>
+            <WindowButton onClick={(event) => { event.stopPropagation(); maximize(); }}>[]</WindowButton>
+            <WindowButton onClick={(event) => { event.stopPropagation(); close(); }}>x</WindowButton>
+          </div>
+        </TitleBar>
+        {children}
+      </StyledWindow>
+    </Draggable>
   );
 }
 
