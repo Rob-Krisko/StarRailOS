@@ -10,6 +10,7 @@ const StyledWindow = styled.div`
   width: ${props => props.state === 'maximized' ? '100vw' : '300px'};
   height: ${props => props.state === 'maximized' ? 'calc(100vh - 30px)' : '200px'};
   top: ${props => props.state === 'maximized' ? '0' : 'unset'};
+  left: ${props => props.state === 'maximized' ? '0' : 'unset'};
   display: ${props => props.state === 'minimized' ? 'none' : 'block'};
 `;
 
@@ -29,7 +30,7 @@ const WindowButton = styled.button`
 
 function Window({ children, title, minimize, maximize, close, zIndex, onClick, state }) {
   return (
-    <Draggable disabled={state === 'maximized'}>
+    <Draggable disabled={state === 'maximized'} position={state === 'maximized' ? {x: 0, y: 0} : null}>
       <StyledWindow zIndex={zIndex} state={state} onClick={onClick}>
         <TitleBar>
           <span>{title}</span>
