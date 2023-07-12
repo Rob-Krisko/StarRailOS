@@ -3,30 +3,27 @@ import styled from 'styled-components';
 
 const StyledStartMenu = styled.div`
   position: absolute;
-  bottom: 30px; // height of taskbar
+  bottom: 30px;
   width: 200px;
   background-color: #fff;
   border: 1px solid #000;
 `;
 
-const AppItem = styled.div`
-  padding: 5px;
-  border-bottom: 1px solid #000; // separator line between items
-  cursor: pointer; // make it look clickable
-
+const ListItem = styled.div`
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #000;
+  
   &:hover {
-    background-color: #0078D7; // change background on hover
-    color: #fff; // change text color on hover
+    background-color: #eee;
   }
 `;
 
 function StartMenu({ apps }) {
   return (
     <StyledStartMenu>
-      {apps.map(app => (
-        <AppItem className="app" onClick={app.open}>
-          {app.name}
-        </AppItem>
+      {apps.map((app, index) => (
+        <ListItem key={index} onClick={app.open}>{app.name}</ListItem>
       ))}
     </StyledStartMenu>
   );
