@@ -1,19 +1,20 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const StyledStartMenu = styled.div`
+const StyledMenu = styled.div`
   position: absolute;
   bottom: 30px;
   width: 200px;
   background-color: #fff;
   border: 1px solid #000;
+  z-index: 9999;
 `;
 
-const ListItem = styled.div`
+const MenuItem = styled.div`
   padding: 10px;
-  cursor: pointer;
   border-bottom: 1px solid #000;
-  
+  cursor: pointer;
+
   &:hover {
     background-color: #eee;
   }
@@ -21,11 +22,13 @@ const ListItem = styled.div`
 
 function StartMenu({ apps }) {
   return (
-    <StyledStartMenu>
+    <StyledMenu>
       {apps.map((app, index) => (
-        <ListItem key={index} onClick={app.open}>{app.name}</ListItem>
+        <MenuItem key={index} onClick={app.open}>
+          {app.name}
+        </MenuItem>
       ))}
-    </StyledStartMenu>
+    </StyledMenu>
   );
 }
 
