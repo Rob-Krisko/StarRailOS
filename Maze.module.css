@@ -1,0 +1,27 @@
+/* maze.module.css */
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(16, 1fr); /* Adjust the number based on your maze size */
+    gap: 2px; /* Adjust the gap size as needed */
+    background-color: #f0f0f0;
+    padding: 10px;
+  }
+  
+  .cell {
+    width: 50px; /* Adjust the width and height as needed */
+    height: 50px;
+    background-color: #fff;
+  }
+  
+  .wall {
+    background-color: #000;
+  }
+  
+  .player {
+    background-color: green;
+  }
+  
+  .enemy {
+    background-color: red;
+  }

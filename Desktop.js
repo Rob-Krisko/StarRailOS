@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import backgroundImage from './osBG.jpg';
 import { v4 as uuidv4 } from 'uuid';
-import Taskbar from './Taskbar';
+import Taskbar from './TaskBar';
 import StartMenu from './StartMenu';
 import Window from './Window';
 import Calculator from './Calculator';
 import WeatherWidget from './WeatherWidget';
+import Todo from './ToDo';
+import Maze from './Maze';
 
 const StyledDesktop = styled.div`
   position: relative;
@@ -23,6 +25,8 @@ function Desktop() {
     { name: 'Calculator', component: <Calculator /> },
     { name: 'App 1', component: <div>App 1</div> },
     { name: 'App 2', component: <div>App 2</div> },
+    { name: 'ToDos', component: <Todo/>},
+    { name: 'Maze', component: <Maze/>}
   ]);
 
   const [openApps, setOpenApps] = useState([]);
