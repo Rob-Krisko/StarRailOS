@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import backgroundImage from './osBG.jpg';
+import backgroundImage from './kafkaisbetter.webp';
 import { v4 as uuidv4 } from 'uuid';
 import Taskbar from './TaskBar';
 import StartMenu from './StartMenu';
