@@ -4,6 +4,7 @@ import Desktop from './components/Desktop';
 
 function App() {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || null);
+  const [editorVisible, setEditorVisible] = useState(false); // Add this line
 
   const handleLogin = (username, password) => {
     const user = { username, password };
@@ -18,7 +19,7 @@ function App() {
 
   return (
     user 
-      ? <Desktop onLogout={handleLogout} /> 
+      ? <Desktop onLogout={handleLogout} onEditorVisible={setEditorVisible} editorVisible={editorVisible}/> 
       : <Login onLogin={handleLogin} />
   );
 }
