@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import styled from 'styled-components';
+import { TaskbarContext } from './TaskbarContext';
 
 const StyledTaskbar = styled.div`
   position: absolute;
@@ -42,8 +43,9 @@ const Clock = styled.div`
   margin-left: auto;
 `;
 
-function Taskbar({ toggleStartMenu, openApps, restoreApp }) {
+function Taskbar({ toggleStartMenu }) {
   const [time, setTime] = useState(new Date());
+  const { openApps, restoreApp } = useContext(TaskbarContext);
 
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000);
