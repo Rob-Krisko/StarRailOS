@@ -20,14 +20,24 @@ const MenuItem = styled.div`
   }
 `;
 
-function StartMenu({ apps }) {
+const LogoutButton = styled.button`
+  // style the logout button as you need
+`;
+
+function StartMenu({ apps, onLogout, toggleStartMenu }) {
+  const handleClick = (app) => {
+    app.open();
+    toggleStartMenu();
+  };
+
   return (
     <StyledMenu>
       {apps.map((app, index) => (
-        <MenuItem key={index} onClick={app.open}>
+        <MenuItem key={index} onClick={() => handleClick(app)}>
           {app.name}
         </MenuItem>
       ))}
+      <LogoutButton onClick={onLogout}>Log out</LogoutButton>
     </StyledMenu>
   );
 }
