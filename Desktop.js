@@ -9,6 +9,7 @@ import Calculator from './Calculator';
 import TaskManager from './TaskManager';
 import TaskInput from './TaskInput';
 import ToDoApp from './ToDoApp';
+import TextEditor from './TextEditor';
 import WeatherWidget from './WeatherWidget';
 import { TaskbarContext } from './TaskbarContext';
 
@@ -40,11 +41,12 @@ function appsReducer(state, action) {
   }
 }
 
-function Desktop() {
+function Desktop({ onLogout }) {
   const [apps, setApps] = useState([
     { name: 'Calculator', component: <Calculator /> },
     { name: 'Task Manager', component: <TaskManager /> },
     { name: 'To Do List', component: <ToDoApp /> },
+    { name: 'Text Editor', component: <TextEditor /> },
     { name: 'App 1', component: <div>App 1</div> },
     { name: 'App 2', component: <div>App 2</div> },
   ]);
@@ -122,7 +124,7 @@ function Desktop() {
           </Window>
         ))}
         <Taskbar toggleStartMenu={toggleStartMenu} />
-        {isStartMenuOpen && <StartMenu apps={apps.map(app => ({ ...app, open: () => openApp(app.name, app.component) }))} />}
+        {isStartMenuOpen && <StartMenu onLogout={onLogout} apps={apps.map(app => ({ ...app, open: () => openApp(app.name, app.component) }))} />}
         <WeatherWidget />
       </StyledDesktop>
     </TaskbarContext.Provider>
