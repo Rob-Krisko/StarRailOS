@@ -1,144 +1,172 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Editor, EditorState, RichUtils, convertToRaw, convertFromRaw } from 'draft-js';
 import styled from 'styled-components';
-import { Editor, EditorState, RichUtils, getDefaultKeyBinding } from 'draft-js';
 
-
-const Container = styled.div`
+const StyledEditorContainer = styled.div`
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  padding: 10px 5px;
+  justify-content: space-between;
+  box-sizing: border-box;
+`;
+
+const StyledToolbar = styled.div`
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid #ddd;
+  background: #f3f3f3;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+`;
+
+const StyledEditor = styled.div`
+  box-sizing: border-box;
+  width: 100%;
   height: 100%;
-`;
-
-const Toolbar = styled.div`
-  background-color: #f3f3f3;
-  padding: 10px;
-`;
-
-const ToolbarButton = styled.button`
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-size: 20px;
-  margin-right: 10px;
-  &:hover {
-    outline: 1px solid #000;
-  }
-  &.active {
-    outline: 1px solid #000;
-  }
-`;
-
-const EditorWrapper = styled.div`
-  background-color: #fff;
-  padding: 10px;
-  height: 100%;
+  border: 1px solid #ddd;
+  background: #fff;
+  flex: 1;
+  padding: 10px 5px;
+  border-radius: 5px;
   overflow: auto;
 `;
 
+const Button = styled.button`
+  border: none;
+  background: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 5px;
+  margin: 0;
+  
+  &:hover, &:focus {
+    outline: 1px solid #ddd;
+  }
+
+  &.active {
+    outline: 1px solid #ddd;
+  }
+`;
+
+function useLocalStorageEvent() {
+  const [storageEvent, setStorageEvent] = useState(null);
+
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      setStorageEvent(event);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  return storageEvent;
+}
+
 function TextEditor() {
   const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const editor = useRef(null);
+  const [docTitle, setDocTitle] = useState("");
+
+  const onChange = (editorState) => {
+    setEditorState(editorState);
+  }
 
   const handleKeyCommand = (command, editorState) => {
     const newState = RichUtils.handleKeyCommand(editorState, command);
     if (newState) {
-      setEditorState(newState);
+      onChange(newState);
       return 'handled';
     }
     return 'not-handled';
-  };
-
-  const mapKeyToEditorCommand = (e) => {
-    if (e.keyCode === 9) {
-      const newEditorState = RichUtils.onTab(e, editorState, 4);
-      if (newEditorState !== editorState) {
-        setEditorState(newEditorState);
-      }
-      return;
-    }
-    return getDefaultKeyBinding(e);
-  };
+  }
 
   const toggleInlineStyle = (inlineStyle) => {
-    setEditorState(
-      RichUtils.toggleInlineStyle(
-        editorState,
-        inlineStyle
-      )
+    onChange(
+      RichUtils.toggleInlineStyle(editorState, inlineStyle)
     );
-  };
+  }
 
-  const toggleBlockType = (blockType) => {
-    setEditorState(
-      RichUtils.toggleBlockType(
-        editorState,
-        blockType
-      )
-    );
-  };
+  const saveDocument = () => {
+    const contentState = editorState.getCurrentContent();
+    const raw = convertToRaw(contentState);
+    localStorage.setItem(docTitle, JSON.stringify({title: docTitle, content: raw}));
+    console.log('Document saved with title: ', docTitle);
+  }
+
+  const loadDocument = (title, content) => {
+    if (title && content) {
+      const loadedState = EditorState.createWithContent(convertFromRaw(content));
+      setEditorState(loadedState);
+      setDocTitle(title);
+      console.log('Loaded document with title: ', title);
+    } else {
+      console.log('No document found with title: ', title);
+    }
+  }
+
+  useEffect(() => {
+    const loadFileFromLocalStorage = () => {
+      const loadedFile = localStorage.getItem('loadFile');
+      if (loadedFile) {
+        const { fileName, fileContent } = JSON.parse(loadedFile);
+        loadDocument(fileName, fileContent);
+      }
+    };
+    
+    loadFileFromLocalStorage();
+  }, [loadDocument]);
 
   const currentStyle = editorState.getCurrentInlineStyle();
-  const blockType = RichUtils.getCurrentBlockType(editorState);
 
   return (
-    <Container>
-      <Toolbar>
-        <ToolbarButton 
-          className={currentStyle.has('BOLD') ? 'active' : ''} 
-          onMouseDown={(e) => { e.preventDefault(); toggleInlineStyle('BOLD'); }} 
-          title="Bold (Ctrl+B)"
-        >
-          <b>B</b>
-        </ToolbarButton>
-        <ToolbarButton 
-          className={currentStyle.has('ITALIC') ? 'active' : ''} 
-          onMouseDown={(e) => { e.preventDefault(); toggleInlineStyle('ITALIC'); }} 
-          title="Italic (Ctrl+I)"
-        >
-          <em>I</em>
-        </ToolbarButton>
-        <ToolbarButton 
-          className={currentStyle.has('UNDERLINE') ? 'active' : ''} 
-          onMouseDown={(e) => { e.preventDefault(); toggleInlineStyle('UNDERLINE'); }} 
-          title="Underline (Ctrl+U)"
-        >
-          <u>U</u>
-        </ToolbarButton>
-        <ToolbarButton 
-          className={blockType === 'unordered-list-item' ? 'active' : ''} 
-          onMouseDown={(e) => { e.preventDefault(); toggleBlockType('unordered-list-item'); }} 
-          title="Bullet list"
-        >
-          &#8226; List
-        </ToolbarButton>
-        <ToolbarButton 
-          className={blockType === 'ordered-list-item' ? 'active' : ''} 
-          onMouseDown={(e) => { e.preventDefault(); toggleBlockType('ordered-list-item'); }} 
-          title="Numbered list"
-        >
-          1. List
-        </ToolbarButton>
-        <ToolbarButton 
-          className={blockType === 'blockquote' ? 'active' : ''} 
-          onMouseDown={(e) => { e.preventDefault(); toggleBlockType('blockquote'); }} 
-          title="Quote"
-        >
-          &ldquo; Quote
-        </ToolbarButton>
-      </Toolbar>
-      <EditorWrapper>
+    <StyledEditorContainer>
+      <StyledToolbar>
+        <div>
+          <Button 
+            onClick={() => toggleInlineStyle('BOLD')}
+            className={currentStyle.has('BOLD') ? 'active' : ''}
+          >
+            <b>B</b>
+          </Button>
+          <Button 
+            onClick={() => toggleInlineStyle('ITALIC')}
+            className={currentStyle.has('ITALIC') ? 'active' : ''}
+          >
+            <i>I</i>
+          </Button>
+          <Button 
+            onClick={() => toggleInlineStyle('UNDERLINE')}
+            className={currentStyle.has('UNDERLINE') ? 'active' : ''}
+          >
+            <u>U</u>
+          </Button>
+        </div>
+        <div>
+          <input value={docTitle} onChange={(e) => setDocTitle(e.target.value)} placeholder="Document name" />
+          <Button onClick={saveDocument}>💾</Button>
+          <Button onClick={() => loadDocument(docTitle)}>📂</Button>
+        </div>
+      </StyledToolbar>
+
+      <StyledEditor>
         <Editor 
-          editorState={editorState}
-          handleKeyCommand={handleKeyCommand}
-          keyBindingFn={mapKeyToEditorCommand}
-          onChange={setEditorState}
-          placeholder="Write something..."
-          ref={editor}
-          spellCheck={true}
+          editorState={editorState} 
+          onChange={onChange} 
+          handleKeyCommand={handleKeyCommand} 
         />
-      </EditorWrapper>
-    </Container>
-  );
+      </StyledEditor>
+    </StyledEditorContainer>
+  )
 }
 
 export default TextEditor;
