@@ -4,13 +4,17 @@ import { TaskbarContext } from './TaskbarContext';
 
 const TaskManagerContainer = styled.div`
   padding: 20px;
+  color: white;
+  height: 100%;
+  overflow: auto;
 `;
 
 const Task = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid black;
+  border: 1px solid white;
+  background-color: rgba(0, 0, 0, 0.8);
   margin-bottom: 10px;
   padding: 10px;
 `;
