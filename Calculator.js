@@ -7,7 +7,11 @@ const Container = styled.div`
   align-items: center;
   height: 100%;
   width: 100%;
+  padding: 0 5px 10px; // added 5px padding left and right
+  box-sizing: border-box; // added box-sizing
 `;
+
+
 
 const Display = styled.div`
   width: 90%;
@@ -18,68 +22,79 @@ const Display = styled.div`
   margin-bottom: 10px;
   border: 1px solid #000;
   overflow: auto;
+  font-size: max(1.2em, min(4vw, 22px)); // min-max font size
 `;
+
 
 const ButtonGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  grid-gap: 5px;
   width: 100%;
 `;
 
 const Button = styled.button`
   padding: 10px;
   font-size: 16px;
+  background: linear-gradient(to bottom, #9dd5fa, #90cfea);
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0px 5px #5b8e99;
+  color: #ffffff;
 `;
 
+const calculatorButtons = [
+  ['7', '8', '9', '/'],
+  ['4', '5', '6', '*'],
+  ['1', '2', '3', '-'],
+  ['0', '.', '=', '+'],
+  ['√', 'x²', '%', 'C'],
+];
+
 function Calculator() {
-  const [display, setDisplay] = useState("");
-  const [operand1, setOperand1] = useState(null);
-  const [operator, setOperator] = useState(null);
+  const [display, setDisplay] = useState('');
 
-  const handleNumber = (number) => {
-    setDisplay(display + number);
-  };
-
-  const handleOperator = (op) => {
-    setOperand1(parseFloat(display));
-    setOperator(op);
-    setDisplay(display + ' ' + op + ' ');
-  };
-
-  const handleEqual = () => {
-    const operand2 = parseFloat(display.split(' ')[2]);
-
-    if (operator === "+") {
-      setDisplay(operand1 + operand2 + '');
-    } else if (operator === "-") {
-      setDisplay(operand1 - operand2 + '');
-    } else if (operator === "*") {
-      setDisplay(operand1 * operand2 + '');
-    } else if (operator === "/") {
-      setDisplay(operand1 / operand2 + '');
+  function handleCalcButtonClick(buttonValue) {
+    switch (buttonValue) {
+      case '=':
+        try {
+          setDisplay(eval(display));
+        } catch {
+          setDisplay("Error");
+        }
+        break;
+      case 'C':
+        setDisplay('');
+        break;
+      case '√':
+        setDisplay(Math.sqrt(display));
+        break;
+      case 'x²':
+        setDisplay(Math.pow(display, 2));
+        break;
+      case '%':
+        setDisplay(display / 100);
+        break;
+      default:
+        setDisplay(display + buttonValue);
+        break;
     }
-
-    setOperator(null);
-    setOperand1(null);
-  };
+  }
 
   return (
     <Container>
       <Display>{display}</Display>
       <ButtonGrid>
-        {[7, 8, 9, '+', 4, 5, 6, '-', 1, 2, 3, '*', 0, '=', '/'].map((button) => (
-          <Button 
-            key={button} 
-            onClick={() => {
-              if (button === '=') handleEqual();
-              else if ('+-*/'.includes(button)) handleOperator(button);
-              else handleNumber(button);
-            }}
-          >
-            {button}
-          </Button>
+        {calculatorButtons.map((row, rowIndex) => (
+            row.map((buttonValue, index) => (
+              <Button 
+                key={index} 
+                onClick={() => handleCalcButtonClick(buttonValue)}
+              >
+                {buttonValue}
+              </Button>
+            ))
         ))}
-        <Button onClick={() => setDisplay("")}>C</Button>
       </ButtonGrid>
     </Container>
   );
