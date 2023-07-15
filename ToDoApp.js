@@ -1,36 +1,27 @@
 import React, { useState, useContext } from 'react';
 import styled from 'styled-components';
 import TaskInput from './TaskInput';
-import spaceBackground from '../space.jpg';
 import { TaskbarContext } from './TaskbarContext';
 
 const Container = styled.div`
-  position: absolute;
-  top: 25px; // adjust to your title bar's height
-  bottom: 0;
-  left: 0;
-  right: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-image: url(${spaceBackground});
-  background-size: cover;
-  background-position: center;
-  padding: 10px;
+  padding-top: 30px;
+  height: 100%;
   overflow: auto;
 `;
-
-
 
 const ToDoItem = styled.div`
   width: 80%;
   padding: 10px;
   border: 1px solid #fff;
-  margin: 10px;
+  margin: 0 10px 10px 10px;
   background-color: rgba(255, 255, 255, 0.7);
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 `;
 
 const AddTaskButton = styled.button`
@@ -55,7 +46,6 @@ function ToDoApp() {
     console.log("Handle add task button pressed");
     openApp('Task Input', <TaskInput addToDo={addToDo} />);
   };
-  
 
   const handleCompleteTask = (id) => {
     const updatedToDoList = toDoList.map(item => item.id === id ? {...item, completed: !item.completed} : item);
