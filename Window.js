@@ -4,6 +4,7 @@ import Draggable from 'react-draggable';
 import { TaskbarContext } from './TaskbarContext';
 import windowBackground from '../space.jpg'; // make sure to update this path
 
+
 const StyledWindow = styled.div`
   position: absolute;
   background-color: #fff;
@@ -14,11 +15,11 @@ const StyledWindow = styled.div`
   top: ${props => props.state === 'maximized' ? '0' : 'unset'};
   left: ${props => props.state === 'maximized' ? '0' : 'unset'};
   display: ${props => props.state === 'minimized' ? 'none' : 'block'};
-  min-width: 300px;
+  min-width: 350px;
   min-height: 200px;
   max-width: 100vw;
   max-height: calc(100vh - 30px);
-  overflow: auto;
+  overflow: hidden;
   background-image: url(${windowBackground});
   background-size: cover;
   background-position: center;
@@ -38,7 +39,7 @@ const WindowButton = styled.button`
   color: #fff;
 `;
 
-function Window({ children, title, id, zIndex, onClick, state }) {
+function Window({ children, title, id, zIndex, onClick, state, openApp }) {
   const { minimizeApp, maximizeApp, closeApp } = useContext(TaskbarContext);
 
   return (
@@ -49,7 +50,7 @@ function Window({ children, title, id, zIndex, onClick, state }) {
           <div>
             <WindowButton onClick={(event) => { event.stopPropagation(); console.log('Minimizing:', id); minimizeApp(id); }}>-</WindowButton>
             <WindowButton onClick={(event) => { event.stopPropagation(); console.log('Maximizing:', id); maximizeApp(id); }}>[]</WindowButton>
-            <WindowButton onClick={(event) => { event.stopPropagation(); console.log('Closing:', id); closeApp(id); }}>x</WindowButton>
+            <WindowButton onClick={(event) => { event.stopPropagation(); console.log('Closing:', id); closeApp(id); if(title === "Text Editor") openApp(title, <TextEditor />); }}>x</WindowButton>
           </div>
         </TitleBar>
         {children}
