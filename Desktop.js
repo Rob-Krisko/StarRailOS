@@ -44,13 +44,12 @@ function appsReducer(state, action) {
   }
 }
 
-function Desktop({ onLogout }) {
+function Desktop({ onLogout, onEditorVisible, editorVisible }) {
   const [apps, setApps] = useState([
     { name: 'Calculator', component: <Calculator /> },
     { name: 'Task Manager', component: <TaskManager /> },
     { name: 'To Do List', component: <ToDoApp /> },
-    { name: 'Text Editor', component: <TextEditor /> },
-    { name: 'File Explorer', component: <FileExplorer /> },
+    { name: 'File Explorer', component: <FileExplorer onEditorVisible={onEditorVisible} /> },
   ]);
 
   const [openApps, dispatch] = useReducer(appsReducer, []);
@@ -115,6 +114,17 @@ function Desktop({ onLogout }) {
             {app.component}
           </Window>
         ))}
+        {editorVisible && 
+          <Window
+            title="Text Editor"
+            onClick={() => bringToFront("Text Editor")}
+            id={uuidv4()}
+            state={'normal'}
+            openApp={openApp}
+          >
+            <TextEditor onEditorVisible={onEditorVisible} />
+          </Window>
+        }
         <Taskbar toggleStartMenu={toggleStartMenu} />
         {isStartMenuOpen && <StartMenu onLogout={onLogout} toggleStartMenu={toggleStartMenu} apps={apps.map(app => ({ ...app, open: () => openApp(app.name, app.component) }))} />}
         <WeatherWidget />
