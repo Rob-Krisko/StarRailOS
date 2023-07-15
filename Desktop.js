@@ -10,6 +10,7 @@ import TaskManager from './TaskManager';
 import TaskInput from './TaskInput';
 import ToDoApp from './ToDoApp';
 import TextEditor from './TextEditor';
+import FileExplorer from './FileExplorer';
 import WeatherWidget from './WeatherWidget';
 import { TaskbarContext } from './TaskbarContext';
 
@@ -36,6 +37,8 @@ function appsReducer(state, action) {
       return state.map((app) => app.id === action.id ? { ...app, state: 'minimized' } : app);
     case 'MAXIMIZE_APP':
       return state.map((app) => app.id === action.id ? { ...app, state: app.state === 'maximized' ? 'normal' : 'maximized' } : app);
+    case 'RESTORE_APP':
+      return state.map((app) => app.id === action.id ? { ...app, state: 'normal' } : app);
     default:
       throw new Error();
   }
@@ -47,8 +50,7 @@ function Desktop({ onLogout }) {
     { name: 'Task Manager', component: <TaskManager /> },
     { name: 'To Do List', component: <ToDoApp /> },
     { name: 'Text Editor', component: <TextEditor /> },
-    { name: 'App 1', component: <div>App 1</div> },
-    { name: 'App 2', component: <div>App 2</div> },
+    { name: 'File Explorer', component: <FileExplorer /> },
   ]);
 
   const [openApps, dispatch] = useReducer(appsReducer, []);
@@ -60,9 +62,7 @@ function Desktop({ onLogout }) {
   };
 
   const openApp = (name, component) => {
-    console.log('openApp is being called with:', name, component);
     dispatch({ type: 'OPEN_APP', name, component });
-    console.log('openApps after opening new app: ', openApps);
   };
 
   const closeApp = (id) => {
@@ -79,7 +79,6 @@ function Desktop({ onLogout }) {
 
   const bringToFront = (id) => {
     setCurrentZIndex(currentZIndex + 1);
-    // Update this line, not using dispatch now
     openApps.forEach((app) => {
       if (app.id === id) {
         app.zIndex = currentZIndex + 1;
@@ -88,16 +87,9 @@ function Desktop({ onLogout }) {
   };
 
   const restoreApp = (id) => {
-    // Update this line, not using dispatch now
-    openApps.forEach((app) => {
-      if (app.id === id) {
-        app.state = 'normal';
-      }
-    });
+    dispatch({ type: 'RESTORE_APP', id });
   };
 
-  console.log('Rendering openApps: ', openApps);
-  
   return (
     <TaskbarContext.Provider 
       value={{
@@ -118,13 +110,13 @@ function Desktop({ onLogout }) {
             onClick={() => bringToFront(app.id)}
             id={app.id}
             state={app.state}
-            openApp={openApp} // Pass openApp function as a prop
+            openApp={openApp}
           >
             {app.component}
           </Window>
         ))}
         <Taskbar toggleStartMenu={toggleStartMenu} />
-        {isStartMenuOpen && <StartMenu onLogout={onLogout} apps={apps.map(app => ({ ...app, open: () => openApp(app.name, app.component) }))} />}
+        {isStartMenuOpen && <StartMenu onLogout={onLogout} toggleStartMenu={toggleStartMenu} apps={apps.map(app => ({ ...app, open: () => openApp(app.name, app.component) }))} />}
         <WeatherWidget />
       </StyledDesktop>
     </TaskbarContext.Provider>
