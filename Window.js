@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import Draggable from 'react-draggable';
 import { TaskbarContext } from './TaskbarContext';
+import windowBackground from '../space.jpg'; // make sure to update this path
 
 const StyledWindow = styled.div`
   position: absolute;
@@ -18,6 +19,9 @@ const StyledWindow = styled.div`
   max-width: 100vw;
   max-height: calc(100vh - 30px);
   overflow: auto;
+  background-image: url(${windowBackground});
+  background-size: cover;
+  background-position: center;
 `;
 
 const TitleBar = styled.div`
