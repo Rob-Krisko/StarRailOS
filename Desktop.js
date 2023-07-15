@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useReducer } from 'react';
 import styled from 'styled-components';
-import backgroundImage from './kafkaisbetter.webp';
 import { v4 as uuidv4 } from 'uuid';
-import Taskbar from './TaskBar';
+import backgroundImage from './compromise.jpg';
+import Taskbar from './Taskbar';
 import StartMenu from './StartMenu';
 import Window from './Window';
 import Calculator from './Calculator';
+import TaskManager from './TaskManager';
+import TaskInput from './TaskInput';
+import ToDoApp from './ToDoApp';
 import WeatherWidget from './WeatherWidget';
-import Todo from './ToDo';
-import Maze from './Maze';
+import { TaskbarContext } from './TaskbarContext';
 
 const StyledDesktop = styled.div`
   position: relative;
@@ -20,70 +22,110 @@ const StyledDesktop = styled.div`
   overflow: hidden;
 `;
 
+function appsReducer(state, action) {
+  switch (action.type) {
+    case 'OPEN_APP':
+      return [
+        ...state,
+        { id: uuidv4(), name: action.name, component: action.component, state: 'normal', zIndex: state.length + 1 }
+      ];
+    case 'CLOSE_APP':
+      return state.filter((app) => app.id !== action.id);
+    case 'MINIMIZE_APP':
+      return state.map((app) => app.id === action.id ? { ...app, state: 'minimized' } : app);
+    case 'MAXIMIZE_APP':
+      return state.map((app) => app.id === action.id ? { ...app, state: app.state === 'maximized' ? 'normal' : 'maximized' } : app);
+    default:
+      throw new Error();
+  }
+}
+
 function Desktop() {
   const [apps, setApps] = useState([
     { name: 'Calculator', component: <Calculator /> },
+    { name: 'Task Manager', component: <TaskManager /> },
+    { name: 'To Do List', component: <ToDoApp /> },
     { name: 'App 1', component: <div>App 1</div> },
     { name: 'App 2', component: <div>App 2</div> },
-    { name: 'ToDos', component: <Todo/>},
-    { name: 'Maze', component: <Maze/>}
   ]);
 
-  const [openApps, setOpenApps] = useState([]);
-  const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
+  const [openApps, dispatch] = useReducer(appsReducer, []);
   const [currentZIndex, setCurrentZIndex] = useState(0);
+  const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
 
   const toggleStartMenu = () => {
     setIsStartMenuOpen(!isStartMenuOpen);
   };
 
   const openApp = (name, component) => {
-    setOpenApps([...openApps, { id: uuidv4(), name, component, state: 'normal', zIndex: currentZIndex + 1 }]);
-    setCurrentZIndex(currentZIndex + 1);
-  };
-
-  const minimizeApp = (id) => {
-    setOpenApps(openApps.map((app) => app.id === id ? { ...app, state: 'minimized' } : app));
-  };
-
-  const maximizeApp = (id) => {
-    setOpenApps(openApps.map((app) => app.id === id ? { ...app, state: app.state === 'maximized' ? 'normal' : 'maximized' } : app));
+    console.log('openApp is being called with:', name, component);
+    dispatch({ type: 'OPEN_APP', name, component });
+    console.log('openApps after opening new app: ', openApps);
   };
 
   const closeApp = (id) => {
-    setOpenApps(openApps.filter((app) => app.id !== id));
+    dispatch({ type: 'CLOSE_APP', id });
+  };
+
+  const minimizeApp = (id) => {
+    dispatch({ type: 'MINIMIZE_APP', id });
+  };
+
+  const maximizeApp = (id) => {
+    dispatch({ type: 'MAXIMIZE_APP', id });
   };
 
   const bringToFront = (id) => {
     setCurrentZIndex(currentZIndex + 1);
-    setOpenApps(openApps.map((app) => app.id === id ? { ...app, zIndex: currentZIndex + 1 } : app));
+    // Update this line, not using dispatch now
+    openApps.forEach((app) => {
+      if (app.id === id) {
+        app.zIndex = currentZIndex + 1;
+      }
+    });
   };
 
   const restoreApp = (id) => {
-    setOpenApps(openApps.map((app) => app.id === id ? { ...app, state: 'normal' } : app));
-    setCurrentZIndex(currentZIndex + 1);
+    // Update this line, not using dispatch now
+    openApps.forEach((app) => {
+      if (app.id === id) {
+        app.state = 'normal';
+      }
+    });
   };
 
+  console.log('Rendering openApps: ', openApps);
+  
   return (
-    <StyledDesktop>
-      <WeatherWidget />
-      {openApps.map((app, index) => (
-        <Window 
-          key={app.id}
-          title={app.name}
-          zIndex={app.zIndex}
-          onClick={() => bringToFront(app.id)}
-          minimize={() => minimizeApp(app.id)}
-          maximize={() => maximizeApp(app.id)}
-          close={() => closeApp(app.id)}
-          state={app.state}
-        >
-          {app.component}
-        </Window>
-      ))}
-      <Taskbar toggleStartMenu={toggleStartMenu} openApps={openApps} restoreApp={restoreApp} />
-      {isStartMenuOpen && <StartMenu apps={apps.map(app => ({ ...app, open: () => openApp(app.name, app.component) }))} />}
-    </StyledDesktop>
+    <TaskbarContext.Provider 
+      value={{
+        openApps, 
+        restoreApp, 
+        closeApp,
+        minimizeApp, 
+        maximizeApp,
+        openApp
+      }}
+    >
+      <StyledDesktop>
+        {openApps.map((app, index) => (
+          <Window 
+            key={app.id}
+            title={app.name}
+            zIndex={app.zIndex}
+            onClick={() => bringToFront(app.id)}
+            id={app.id}
+            state={app.state}
+            openApp={openApp} // Pass openApp function as a prop
+          >
+            {app.component}
+          </Window>
+        ))}
+        <Taskbar toggleStartMenu={toggleStartMenu} />
+        {isStartMenuOpen && <StartMenu apps={apps.map(app => ({ ...app, open: () => openApp(app.name, app.component) }))} />}
+        <WeatherWidget />
+      </StyledDesktop>
+    </TaskbarContext.Provider>
   );
 }
 
