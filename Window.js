@@ -1,17 +1,23 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import Draggable from 'react-draggable';
+import { TaskbarContext } from './TaskbarContext';
 
 const StyledWindow = styled.div`
   position: absolute;
   background-color: #fff;
   border: 1px solid #000;
   z-index: ${props => props.zIndex};
-  width: ${props => props.state === 'maximized' ? '100vw' : '300px'};
-  height: ${props => props.state === 'maximized' ? 'calc(100vh - 30px)' : '200px'};
+  width: ${props => props.state === 'maximized' ? '100vw' : 'fit-content'};
+  height: ${props => props.state === 'maximized' ? 'calc(100vh - 30px)' : 'fit-content'};
   top: ${props => props.state === 'maximized' ? '0' : 'unset'};
   left: ${props => props.state === 'maximized' ? '0' : 'unset'};
   display: ${props => props.state === 'minimized' ? 'none' : 'block'};
+  min-width: 300px;
+  min-height: 200px;
+  max-width: 100vw;
+  max-height: calc(100vh - 30px);
+  overflow: auto;
 `;
 
 const TitleBar = styled.div`
@@ -28,16 +34,18 @@ const WindowButton = styled.button`
   color: #fff;
 `;
 
-function Window({ children, title, minimize, maximize, close, zIndex, onClick, state }) {
+function Window({ children, title, id, zIndex, onClick, state }) {
+  const { minimizeApp, maximizeApp, closeApp } = useContext(TaskbarContext);
+
   return (
     <Draggable disabled={state === 'maximized'} position={state === 'maximized' ? {x: 0, y: 0} : null}>
       <StyledWindow zIndex={zIndex} state={state} onClick={onClick}>
         <TitleBar>
           <span>{title}</span>
           <div>
-            <WindowButton onClick={(event) => { event.stopPropagation(); minimize(); }}>-</WindowButton>
-            <WindowButton onClick={(event) => { event.stopPropagation(); maximize(); }}>[]</WindowButton>
-            <WindowButton onClick={(event) => { event.stopPropagation(); close(); }}>x</WindowButton>
+            <WindowButton onClick={(event) => { event.stopPropagation(); console.log('Minimizing:', id); minimizeApp(id); }}>-</WindowButton>
+            <WindowButton onClick={(event) => { event.stopPropagation(); console.log('Maximizing:', id); maximizeApp(id); }}>[]</WindowButton>
+            <WindowButton onClick={(event) => { event.stopPropagation(); console.log('Closing:', id); closeApp(id); }}>x</WindowButton>
           </div>
         </TitleBar>
         {children}
