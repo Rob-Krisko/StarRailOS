@@ -1,77 +1,68 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import styled from 'styled-components';
+import { TaskbarContext } from './TaskbarContext';
+import TextEditor from './TextEditor';
 
-const Folder = styled.div`
+const StyledExplorerContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   padding: 10px;
-  background-color: lightgray;
-  margin-bottom: 5px;
+  justify-content: flex-start;
+  box-sizing: border-box;
+  overflow: auto;
+  flex: 1;
 `;
 
 const File = styled.div`
   padding: 10px;
   background-color: #fff;
   margin: 5px 0;
-`;
-
-const Button = styled.button`
-  margin-right: 10px;
-`;
-
-const FileOrFolder = ({ item }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  if (item.type === 'folder') {
-    return (
-      <Folder>
-        <Button onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? 'Close' : 'Open'} 
-        </Button>
-        {item.name}
-        {isOpen && item.children.map((child) => <FileOrFolder key={child.name} item={child} />)}
-      </Folder>
-    );
-  } else if (item.type === 'file') {
-    return <File>{item.name}</File>;
-  } else {
-    return null;
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f0f0;
   }
-};
+`;
 
 function FileExplorer() {
+  const { openApp } = useContext(TaskbarContext);
   const [fileSystem, setFileSystem] = useState([]);
 
   useEffect(() => {
-    const initialFileSystem = [
-      {
-        type: 'folder',
-        name: 'Folder 1',
-        children: [
-          {
-            type: 'file',
-            name: 'File 1',
-            content: 'This is File 1.'
-          },
-          {
-            type: 'file',
-            name: 'File 2',
-            content: 'This is File 2.'
-          }
-        ]
-      },
-      {
-        type: 'file',
-        name: 'File 3',
-        content: 'This is File 3.'
+    const keys = Object.keys(localStorage);
+    const files = keys.map((key) => {
+      const item = localStorage.getItem(key);
+      try {
+        const parsedItem = JSON.parse(item);
+        if (parsedItem && parsedItem.content && parsedItem.content.blocks) {
+          return {
+            name: key,
+            content: parsedItem.content
+          };
+        } else {
+          return null;
+        }
+      } catch (e) {
+        console.log(`Error parsing item with key ${key}: ${e}`);
+        return null;
       }
-    ];
+    }).filter(item => item !== null);
 
-    setFileSystem(initialFileSystem);
+    setFileSystem(files);
   }, []);
 
+  const openFile = (fileName, fileContent) => {
+    localStorage.setItem('loadFile', JSON.stringify({ fileName, fileContent }));
+    openApp("Text Editor", <TextEditor />);
+  };
+
   return (
-    <div>
-      {fileSystem.map((item) => <FileOrFolder key={item.name} item={item} />)}
-    </div>
+    <StyledExplorerContainer>
+      {fileSystem.map((file) => 
+        <File key={file.name} onClick={() => openFile(file.name, file.content)}>{file.name}</File>
+      )}
+    </StyledExplorerContainer>
   );
 }
 
