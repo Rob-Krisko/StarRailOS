@@ -2,8 +2,8 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import Draggable from 'react-draggable';
 import { TaskbarContext } from './TaskbarContext';
+import TextEditor from './TextEditor'; // Import the TextEditor component
 import windowBackground from '../space.jpg'; // make sure to update this path
-
 
 const StyledWindow = styled.div`
   position: absolute;
@@ -14,7 +14,8 @@ const StyledWindow = styled.div`
   height: ${props => props.state === 'maximized' ? 'calc(100vh - 30px)' : 'fit-content'};
   top: ${props => props.state === 'maximized' ? '0' : 'unset'};
   left: ${props => props.state === 'maximized' ? '0' : 'unset'};
-  display: ${props => props.state === 'minimized' ? 'none' : 'block'};
+  display: ${props => props.state === 'minimized' ? 'none' : 'flex'};
+  flex-direction: column;
   min-width: 350px;
   min-height: 200px;
   max-width: 100vw;
@@ -24,6 +25,7 @@ const StyledWindow = styled.div`
   background-size: cover;
   background-position: center;
 `;
+
 
 const TitleBar = styled.div`
   display: flex;
@@ -50,7 +52,7 @@ function Window({ children, title, id, zIndex, onClick, state, openApp }) {
           <div>
             <WindowButton onClick={(event) => { event.stopPropagation(); console.log('Minimizing:', id); minimizeApp(id); }}>-</WindowButton>
             <WindowButton onClick={(event) => { event.stopPropagation(); console.log('Maximizing:', id); maximizeApp(id); }}>[]</WindowButton>
-            <WindowButton onClick={(event) => { event.stopPropagation(); console.log('Closing:', id); closeApp(id); if(title === "Text Editor") openApp(title, <TextEditor />); }}>x</WindowButton>
+            <WindowButton onClick={(event) => { event.stopPropagation(); console.log('Closing:', id); closeApp(id); }}>x</WindowButton>
           </div>
         </TitleBar>
         {children}
