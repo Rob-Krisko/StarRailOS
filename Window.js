@@ -2,8 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 import Draggable from 'react-draggable';
 import { TaskbarContext } from './TaskbarContext';
-import TextEditor from './TextEditor'; // Import the TextEditor component
-import windowBackground from '../space.jpg'; // make sure to update this path
+import windowBackground from '../space.jpg'; 
 
 const StyledWindow = styled.div`
   position: absolute;
@@ -26,13 +25,13 @@ const StyledWindow = styled.div`
   background-position: center;
 `;
 
-
 const TitleBar = styled.div`
   display: flex;
   justify-content: space-between;
   background-color: #000;
   color: #fff;
   padding: 2px 5px;
+  cursor: move; // Add this line to provide visual feedback to users that this area is draggable
 `;
 
 const WindowButton = styled.button`
@@ -45,9 +44,9 @@ function Window({ children, title, id, zIndex, onClick, state, openApp }) {
   const { minimizeApp, maximizeApp, closeApp } = useContext(TaskbarContext);
 
   return (
-    <Draggable disabled={state === 'maximized'} position={state === 'maximized' ? {x: 0, y: 0} : null}>
+    <Draggable handle=".handle" disabled={state === 'maximized'} position={state === 'maximized' ? {x: 0, y: 0} : null}>
       <StyledWindow zIndex={zIndex} state={state} onClick={onClick}>
-        <TitleBar>
+        <TitleBar className="handle">
           <span>{title}</span>
           <div>
             <WindowButton onClick={(event) => { event.stopPropagation(); console.log('Minimizing:', id); minimizeApp(id); }}>-</WindowButton>
