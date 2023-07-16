@@ -11,6 +11,7 @@ import TaskInput from './TaskInput';
 import ToDoApp from './ToDoApp';
 import TextEditor from './TextEditor';
 import FileExplorer from './FileExplorer';
+import GameLauncher from './GameLauncher';
 import WeatherWidget from './WeatherWidget';
 import { TaskbarContext } from './TaskbarContext';
 
@@ -51,6 +52,7 @@ function Desktop({ onLogout, onEditorVisible, editorVisible }) {
     { name: 'To Do List', component: <ToDoApp /> },
     { name: 'Text Editor', component: <TextEditor /> },
     { name: 'File Explorer', component: <FileExplorer onEditorVisible={onEditorVisible} /> },
+    { name: 'Game Launcher', component: <GameLauncher /> },
   ]);
 
   const [openApps, dispatch] = useReducer(appsReducer, []);
