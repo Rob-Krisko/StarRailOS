@@ -55,27 +55,13 @@ const Button = styled.button`
   }
 `;
 
-function useLocalStorageEvent() {
-  const [storageEvent, setStorageEvent] = useState(null);
-
-  useEffect(() => {
-    const handleStorageChange = (event) => {
-      setStorageEvent(event);
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
-
-  return storageEvent;
-}
-
-function TextEditor() {
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [docTitle, setDocTitle] = useState("");
+function TextEditor({ initialFile }) {
+  const [editorState, setEditorState] = useState(
+    initialFile 
+      ? EditorState.createWithContent(convertFromRaw(initialFile.fileContent)) 
+      : EditorState.createEmpty()
+  );
+  const [docTitle, setDocTitle] = useState(initialFile ? initialFile.fileName : "");
 
   const onChange = (editorState) => {
     setEditorState(editorState);
@@ -103,28 +89,24 @@ function TextEditor() {
     console.log('Document saved with title: ', docTitle);
   }
 
-  const loadDocument = (title, content) => {
-    if (title && content) {
-      const loadedState = EditorState.createWithContent(convertFromRaw(content));
-      setEditorState(loadedState);
-      setDocTitle(title);
-      console.log('Loaded document with title: ', title);
-    } else {
-      console.log('No document found with title: ', title);
+  const loadDocument = (title) => {
+    if (title) {
+      const item = localStorage.getItem(title);
+      try {
+        const parsedItem = JSON.parse(item);
+        if (parsedItem && parsedItem.content) {
+          const loadedState = EditorState.createWithContent(convertFromRaw(parsedItem.content));
+          setEditorState(loadedState);
+          setDocTitle(title);
+          console.log('Loaded document with title: ', title);
+        } else {
+          console.log('No document found with title: ', title);
+        }
+      } catch (e) {
+        console.log(`Error parsing item with key ${title}: ${e}`);
+      }
     }
   }
-
-  useEffect(() => {
-    const loadFileFromLocalStorage = () => {
-      const loadedFile = localStorage.getItem('loadFile');
-      if (loadedFile) {
-        const { fileName, fileContent } = JSON.parse(loadedFile);
-        loadDocument(fileName, fileContent);
-      }
-    };
-    
-    loadFileFromLocalStorage();
-  }, [loadDocument]);
 
   const currentStyle = editorState.getCurrentInlineStyle();
 
@@ -157,7 +139,6 @@ function TextEditor() {
           <Button onClick={() => loadDocument(docTitle)}>📂</Button>
         </div>
       </StyledToolbar>
-
       <StyledEditor>
         <Editor 
           editorState={editorState} 
