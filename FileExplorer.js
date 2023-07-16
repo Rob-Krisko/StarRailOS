@@ -5,15 +5,15 @@ import TextEditor from './TextEditor';
 
 const StyledExplorerContainer = styled.div`
   width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
   padding: 10px;
   justify-content: flex-start;
   box-sizing: border-box;
-  overflow: auto;
-  flex: 1;
+  overflow: auto; 
+  flex-grow: 1;
 `;
+
 
 const File = styled.div`
   padding: 10px;
@@ -53,8 +53,7 @@ function FileExplorer() {
   }, []);
 
   const openFile = (fileName, fileContent) => {
-    localStorage.setItem('loadFile', JSON.stringify({ fileName, fileContent }));
-    openApp("Text Editor", <TextEditor />);
+    openApp("Text Editor", <TextEditor initialFile={{ fileName, fileContent }} />);
   };
 
   return (
