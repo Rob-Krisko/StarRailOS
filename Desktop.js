@@ -49,6 +49,7 @@ function Desktop({ onLogout, onEditorVisible, editorVisible }) {
     { name: 'Calculator', component: <Calculator /> },
     { name: 'Task Manager', component: <TaskManager /> },
     { name: 'To Do List', component: <ToDoApp /> },
+    { name: 'Text Editor', component: <TextEditor /> },
     { name: 'File Explorer', component: <FileExplorer onEditorVisible={onEditorVisible} /> },
   ]);
 
