@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import Login from './components/Login';
-import Desktop from './components/Desktop';
+import Login from './Login';
+import Desktop from './Desktop';
 
 function App() {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || null);

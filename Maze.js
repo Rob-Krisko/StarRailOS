@@ -1,5 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import styles from './Maze.module.css'; // Import the CSS module
+//import styles from './Maze.module.css'; // Import the CSS module
+import styled from 'styled-components';
+import Asta from './asta_icon.png';
+import Kafka from './ace.jpg';
+import Bronya from './bronya_icon.png';
+import wall from './space_2.png';
+import floor from './floor.png'
+
+const Container = styled.div`
+  display: grid;
+  grid-template-columns: repeat(17, 0fr);
+  background-color: #f0f0f0;
+  padding: 10px;
+`;
+
+const Cell = styled.div`
+  width: 50px;
+  height: 50px;
+  background-image: url(${floor});
+  background-size: cover;
+`;
+
+const Wall = styled(Cell)`
+  background-image: url(${wall});
+  background-size: cover;
+`;
+
+const Enemy = styled(Cell)`
+  background-image: url(${Bronya});
+  background-size: cover;
+`;
+
+const Player = styled(Cell)`
+  background-image: url(${Kafka});
+  background-size: cover;
+`;
 
 const Maze = () => {
   const maze = [
@@ -124,30 +159,29 @@ const initialEnemyPos = getRandomPosition();
   };
 
   return (
-    <div tabIndex="0" onKeyDown={handleKeyPress} className={styles.container}>
-      {!gameStart && (
-        <button onClick={StartingGame}>Start Game</button>
-      )}
+    <Container tabIndex="0" onKeyDown={handleKeyPress}>
+      {!gameStart && <button onClick={StartingGame}>Start Game</button>}
       {gameStart && (
         <>
           <button onClick={resetGame}>Restart</button>
           {maze.map((row, rowIndex) => (
             <div key={rowIndex}>
-              {row.map((cell, columnIndex) => (
-                <div
-                  key={columnIndex}
-                  className={`${styles.cell} ${
-                    cell === 1 ? styles.wall : ''
-                  } ${playerPos.x === columnIndex && playerPos.y === rowIndex ? styles.player : ''} ${
-                    enemyPos.x === columnIndex && enemyPos.y === rowIndex ? styles.enemy : ''
-                  }`}
-                ></div>
-              ))}
+              {row.map((cell, columnIndex) => {
+                if (cell === 1) {
+                  return <Wall key={columnIndex} />;
+                } else if (playerPos.x === columnIndex && playerPos.y === rowIndex) {
+                  return <Player key={columnIndex} />;
+                } else if (enemyPos.x === columnIndex && enemyPos.y === rowIndex) {
+                  return <Enemy key={columnIndex} />;
+                } else {
+                  return <Cell key={columnIndex} />;
+                }
+              })}
             </div>
           ))}
         </>
       )}
-    </div>
+    </Container>
   );
 };
 

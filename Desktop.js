@@ -2,7 +2,7 @@ import React, { useState, useReducer } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import backgroundImage from './compromise.jpg';
-import Taskbar from './Taskbar';
+import TaskBar from './TaskBar';
 import StartMenu from './StartMenu';
 import Window from './Window';
 import Calculator from './Calculator';

@@ -3,10 +3,9 @@ import styled from 'styled-components';
 import { TaskbarContext } from './TaskbarContext';
 import TicTacToe from './TicTacToe';
 import CounterGame from './CounterGame';
-import Solitaire from './Solitaire';
-import bronyaIcon from '../assets/bronya_icon.png';
-import silverIcon from '../assets/silver_icon.png';
-import astaIcon from '../assets/asta_icon.png';
+import bronyaIcon from './bronya_icon.png';
+import silverIcon from './silver_icon.png';
+import Maze from './Maze';
 
 const GameLauncherContainer = styled.div`
   display: flex;
@@ -52,13 +51,14 @@ function GameLauncher() {
       icon: silverIcon,
       component: <CounterGame />
     },
+
     {
-        name: "Solitaire",
-        icon: astaIcon,
-        component: <Solitaire />
-    }
+      name: "Maze Game",
+      icon: bronyaIcon,
+      component: <Maze />
+    },
     // ...
-    // add more games as needed
+    // add more games in the same fashion as above. make sure to save icon in the assets directory and import at the top as well
     // ...
   ];
 
