@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import cardBack from '../assets/card.jpg';
 import { GiHearts, GiDiamonds, GiClubs, GiSpades } from "react-icons/gi";
+import ParticlesBg from 'particles-bg';
+import { motion, AnimatePresence } from 'framer-motion';
 import ace from '../assets/cards/ace.jpg';
 import two from '../assets/cards/two.jpg';
 import three from '../assets/cards/three.jpg';
@@ -258,20 +260,17 @@ function Card({ card, index, StyledCard, onDragStart, foundationIndex }) {
     />
 }
 
-
-
 const isDifferentColor = (card1, card2) => {
   const redSuits = ['hearts', 'diamonds'];
   return redSuits.includes(card1.suit) !== redSuits.includes(card2.suit);
 };
-
-
 
 function Solitaire() {
   const [deck, setDeck] = useState([]);
   const [tableau, setTableau] = useState([]);
   const [discard, setDiscard] = useState([]);
   const [foundations, setFoundations] = useState([[], [], [], []]);
+  const [gameWon, setGameWon] = useState(false);
 
   useEffect(() => {
     const newDeck = generateDeck();
@@ -320,157 +319,147 @@ function Solitaire() {
   const handleDrop = (e, toStackIndex) => {
     e.preventDefault();
     const from = JSON.parse(e.dataTransfer.getData('text/plain'));
-  
+
     if (from.stack === undefined && from.pile !== 'discard' && from.pile !== 'foundation') return;
     if (from.stack === toStackIndex) return; // Can't move cards within the same stack
-  
+
     let fromStack;
     let movedCards;
     if (from.stack !== undefined) {
       fromStack = [...tableau[from.stack]];
       movedCards = fromStack.splice(from.index);
+      if (fromStack.length > 0) {
+        fromStack[fromStack.length - 1].faceUp = true;
+      }
     } else if (from.pile === 'discard') {
       fromStack = [...discard];
-      movedCards = fromStack.splice(-1); // When moving from discard, only ever move the last card
+      movedCards = fromStack.splice(-1);
     } else {
       fromStack = [...foundations[from.foundation]];
-      movedCards = fromStack.splice(-1); // When moving from foundation, only ever move the last card
+      movedCards = fromStack.splice(-1);
     }
-  
+
     const toStack = [...tableau[toStackIndex]];
-  
-    // Moving cards to a stack is only valid if the stack is empty or the top card of the stack is of a different color and of one value greater
+
     if (toStack.length === 0 || (isDifferentColor(toStack[toStack.length - 1], movedCards[0]) && valueOrder[toStack[toStack.length - 1].value] === valueOrder[movedCards[0].value] + 1)) {
       toStack.push(...movedCards);
-    } else if (from.pile === 'foundation') {
-      // If card is from foundation, it can be moved to tableau regardless
-      toStack.push(...movedCards);
     } else {
-      // Invalid move, revert the operation
       fromStack.push(...movedCards);
     }
-  
+
     setTableau(prevTableau => prevTableau.map((stack, i) => {
       if (i === from.stack) return fromStack;
       if (i === toStackIndex) return toStack;
       return stack;
     }));
-  
+
     if (from.pile === 'discard') {
       setDiscard(fromStack);
     } else if (from.pile === 'foundation') {
       setFoundations(prevFoundations => prevFoundations.map((stack, i) => i === from.foundation ? fromStack : stack));
     }
+};
+
   
-    // After a card is moved, if the last card in the stack is face-down, flip it
-    if (fromStack.length > 0 && !fromStack[fromStack.length - 1].faceUp) {
-      const newFromStack = [...fromStack];
-      newFromStack[newFromStack.length - 1].faceUp = true;
-      if (from.stack !== undefined) {
-        setTableau(prevTableau => prevTableau.map((stack, i) => i === from.stack ? newFromStack : stack));
-      }
-    }
+  const checkVictory = (foundations) => {
+    return foundations.every(foundation => foundation.length === 13);
   };
-  
-  
-  
-  
-  
-  
-  
+
   const handleFoundationDrop = (e, foundationIndex) => {
     e.preventDefault();
     const from = JSON.parse(e.dataTransfer.getData('text/plain'));
-  
+
     if (from.stack === undefined && from.pile !== 'discard') return;
-  
+
     const fromStack = from.pile ? [...discard] : [...tableau[from.stack]];
     const card = fromStack[from.index];
     const foundationStack = [...foundations[foundationIndex]];
-  
+
     if (foundationStack.length === 0 && card.value === 'A' ||
       (foundationStack.length > 0 && card.suit === foundationStack[0].suit && valueOrder[card.value] === valueOrder[foundationStack[foundationStack.length - 1].value] + 1)) {
       fromStack.splice(from.index, 1);
       foundationStack.push(card);
-  
-      // After a card is moved, if the last card in the stack is face-down, flip it
+
       if (fromStack.length > 0 && !fromStack[fromStack.length - 1].faceUp) {
         fromStack[fromStack.length - 1].faceUp = true;
       }
-  
+
       if (from.pile) {
         setDiscard(fromStack);
       } else {
         setTableau(prevTableau => prevTableau.map((stack, i) => i === from.stack ? fromStack : stack));
       }
-  
+
       setFoundations(prevFoundations => prevFoundations.map((stack, i) => i === foundationIndex ? foundationStack : stack));
     }
   };
+
+  useEffect(() => {
+    if (checkVictory(foundations)) {
+      setGameWon(true);
+    }
+  }, [foundations]);
+
   
-
-
   return (
     <StyledSolitaireContainer>
-      <StyledArea>
-        <StyledDeck onClick={flipCard}>
-          {deck.length > 0 ? <Card card={{ faceUp: false }} StyledCard={StyledCardBack} /> : <StyledOutline />}
-        </StyledDeck>
-        <StyledDiscard>
-          {discard.length > 0 && (
-            <Card 
-              key={discard[discard.length - 1].id} 
-              card={discard[discard.length - 1]} 
-              StyledCard={StyledDiscardCard} 
-              onDragStart={(e) => handleDiscardDragStart(e)}
-            />
-          )}
-        </StyledDiscard>
-  
-        {foundations.map((foundationStack, foundationIndex) => (
-          <StyledFoundation
-            key={foundationIndex}
-            onDrop={(e) => {
-              e.stopPropagation(); 
-              handleFoundationDrop(e, foundationIndex);
-            }}
-            onDragOver={handleDragOver}
-          >
-            {foundationStack.length > 0 
-              ? <Card 
-              key={foundationStack[foundationStack.length - 1].id}
-              card={foundationStack[foundationStack.length - 1]} 
-              StyledCard={StyledFoundationCard} 
-              onDragStart={(e) => handleFoundationDragStart(e, foundationIndex)}
-            />
-            
-              : <StyledOutline />
-            }
-          </StyledFoundation>
-        ))}
-      </StyledArea>
-      <StyledArea style={{ justifyContent: 'flex-start', marginBottom: '50px' }}>
-        {tableau.map((stack, stackIndex) => (
-          <StyledStackFlex key={stackIndex} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, stackIndex)}>
-            {stack.length === 0 
-              ? <StyledOutline /> 
-              : stack.map((card, cardIndex) => (
-                <Card
-                  key={card.id}
-                  card={card}
-                  index={cardIndex}
-                  StyledCard={StyledStackCardFirst}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, cardIndex, stackIndex)}
-                />
-              ))}
-          </StyledStackFlex>
-        ))}
-      </StyledArea>
+        {gameWon && <ParticlesBg type="circle" bg={true} />}
+        {gameWon && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} style={{position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", color: "white", fontSize: "4em", fontWeight: "bold", textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)"}}>You Win!</motion.div>}
+        {gameWon && <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} style={{position: "absolute", bottom: "50px", left: "50%", transform: "translateX(-50%)", padding: "10px 20px"}} onClick={() => window.location.reload()}>Play Again</motion.button>}
+        <StyledArea>
+            <StyledDeck onClick={flipCard}>
+                {deck.length > 0 ? <Card card={{ faceUp: false }} StyledCard={StyledCardBack} /> : <StyledOutline />}
+            </StyledDeck>
+            <StyledDiscard>
+                {discard.length > 0 && (
+                    <Card 
+                        key={discard[discard.length - 1].id} 
+                        card={discard[discard.length - 1]} 
+                        StyledCard={StyledDiscardCard} 
+                        onDragStart={(e) => handleDiscardDragStart(e)}
+                    />
+                )}
+            </StyledDiscard>
+            {foundations.map((foundationStack, foundationIndex) => (
+                <StyledFoundation
+                    key={foundationIndex}
+                    onDrop={(e) => {
+                        e.stopPropagation(); 
+                        handleFoundationDrop(e, foundationIndex);
+                    }}
+                    onDragOver={handleDragOver}
+                >
+                    {foundationStack.length > 0 
+                        ? <Card 
+                            key={foundationStack[foundationStack.length - 1].id}
+                            card={foundationStack[foundationStack.length - 1]} 
+                            StyledCard={StyledFoundationCard} 
+                            onDragStart={(e) => handleFoundationDragStart(e, foundationIndex)}
+                        />
+                        : <StyledOutline />
+                    }
+                </StyledFoundation>
+            ))}
+        </StyledArea>
+        <StyledArea style={{ justifyContent: 'flex-start', marginBottom: '50px' }}>
+            {tableau.map((stack, stackIndex) => (
+                <StyledStackFlex key={stackIndex} onDragOver={handleDragOver} onDrop={(e) => handleDrop(e, stackIndex)}>
+                    {stack.length === 0 
+                        ? <StyledOutline /> 
+                        : stack.map((card, cardIndex) => (
+                            <Card
+                                key={card.id}
+                                card={card}
+                                index={cardIndex}
+                                StyledCard={StyledStackCardFirst}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, cardIndex, stackIndex)}
+                            />
+                        ))}
+                </StyledStackFlex>
+            ))}
+        </StyledArea>
     </StyledSolitaireContainer>
-  );
-  
-  
+);
 }
-
 export default Solitaire;
