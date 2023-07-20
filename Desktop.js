@@ -1,141 +1,119 @@
-import React, { useState, useReducer } from 'react';
+import React, { useState } from 'react';
+import { Calendar, momentLocalizer } from 'react-big-calendar';
+import moment from 'moment';
 import styled from 'styled-components';
-import { v4 as uuidv4 } from 'uuid';
-import backgroundImage from './compromise.jpg';
-import Taskbar from './Taskbar';
-import StartMenu from './StartMenu';
-import Window from './Window';
-import Calculator from './Calculator';
-import TaskManager from './TaskManager';
-import TaskInput from './TaskInput';
-import ToDoApp from './ToDoApp';
-import TextEditor from './TextEditor';
-import FileExplorer from './FileExplorer';
-import GameLauncher from './GameLauncher';
-import MusicPlayer from './MusicPlayer';
-import WeatherWidget from './WeatherWidget';
-import { TaskbarContext } from './TaskbarContext';
+import { motion } from 'framer-motion';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-const StyledDesktop = styled.div`
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  background-image: url(${backgroundImage});
-  background-size: cover;
-  background-position: center;
-  overflow: hidden;
+const localizer = momentLocalizer(moment);
+
+const StyledCalendarContainer = styled(motion.div)`
+  position: absolute;
+  bottom: 40px;
+  right: 0px;
+  width: 600px; 
+  height: 450px; 
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid #72032c;
+  background-color: #282828;
+
+  .rbc-toolbar {
+    background-color: #282828;
+    color: white;
+  }
+
+  .rbc-calendar {
+    background-color: #282828;
+    color: white;
+  }
+
+  .rbc-btn-group {
+    background-color: #282828;
+    color: white;
+  }
+
+  .rbc-date-cell {
+    color: #0FF;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+
+  .rbc-today {
+    background-color: #800020;
+    color: white;
+  }
+
+  .rbc-month-view .rbc-header, .rbc-time-view .rbc-header {
+    background-color: #282828;
+    color: white;
+  }
+
+  .rbc-day-slot .rbc-event {
+    background-color: #72032c;
+    color: white;
+  }
 `;
 
-function appsReducer(state, action) {
-  switch (action.type) {
-    case 'OPEN_APP':
-      return [
-        ...state,
-        { id: uuidv4(), name: action.name, component: action.component, state: 'normal', zIndex: state.length + 1 }
+function CalendarApp() {
+  const [events, setEvents] = useState(JSON.parse(localStorage.getItem("events")) || []);
+
+  const handleSelect = ({ start, end }) => {
+    const title = window.prompt('Please enter event name');
+    if (title) {
+      const newEvents = [
+        ...events,
+        {
+          start,
+          end,
+          title,
+        },
       ];
-    case 'CLOSE_APP':
-      return state.filter((app) => app.id !== action.id);
-    case 'MINIMIZE_APP':
-      return state.map((app) => app.id === action.id ? { ...app, state: 'minimized' } : app);
-    case 'MAXIMIZE_APP':
-      return state.map((app) => app.id === action.id ? { ...app, state: app.state === 'maximized' ? 'normal' : 'maximized' } : app);
-    case 'RESTORE_APP':
-      return state.map((app) => app.id === action.id ? { ...app, state: 'normal' } : app);
-    default:
-      throw new Error();
-  }
-}
-
-function Desktop({ onLogout, onEditorVisible, editorVisible }) {
-  const [apps, setApps] = useState([
-    { name: 'Calculator', component: <Calculator /> },
-    { name: 'Task Manager', component: <TaskManager /> },
-    { name: 'To Do List', component: <ToDoApp /> },
-    { name: 'Text Editor', component: <TextEditor /> },
-    { name: 'File Explorer', component: <FileExplorer onEditorVisible={onEditorVisible} /> },
-    { name: 'Game Launcher', component: <GameLauncher /> },
-    { name: 'Music Player', component: <MusicPlayer /> },
-  ]);
-
-  const [openApps, dispatch] = useReducer(appsReducer, []);
-  const [currentZIndex, setCurrentZIndex] = useState(0);
-  const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
-
-  const toggleStartMenu = () => {
-    setIsStartMenuOpen(!isStartMenuOpen);
+      setEvents(newEvents);
+      localStorage.setItem("events", JSON.stringify(newEvents));
+    }
   };
 
-  const openApp = (name, component) => {
-    dispatch({ type: 'OPEN_APP', name, component });
-  };
-
-  const closeApp = (id) => {
-    dispatch({ type: 'CLOSE_APP', id });
-  };
-
-  const minimizeApp = (id) => {
-    dispatch({ type: 'MINIMIZE_APP', id });
-  };
-
-  const maximizeApp = (id) => {
-    dispatch({ type: 'MAXIMIZE_APP', id });
-  };
-
-  const bringToFront = (id) => {
-    setCurrentZIndex(currentZIndex + 1);
-    openApps.forEach((app) => {
-      if (app.id === id) {
-        app.zIndex = currentZIndex + 1;
+  const handleSelectEvent = (event) => {
+    const title = window.prompt('Please edit event name, or leave empty to delete', event.title);
+    if (title === null) {
+      // User cancelled the prompt, do nothing
+      return;
+    } else if (title === '') {
+      // User left the prompt empty, confirm if they want to delete the event
+      const confirmDelete = window.confirm('Are you sure you want to delete this event?');
+      if (confirmDelete) {
+        const newEvents = events.filter(e => e !== event);
+        setEvents(newEvents);
+        localStorage.setItem("events", JSON.stringify(newEvents));
       }
-    });
+    } else {
+      // User edited the event name
+      const newEvents = events.map(e => e === event ? { ...e, title } : e);
+      setEvents(newEvents);
+      localStorage.setItem("events", JSON.stringify(newEvents));
+    }
   };
 
-  const restoreApp = (id) => {
-    dispatch({ type: 'RESTORE_APP', id });
-  };
 
   return (
-    <TaskbarContext.Provider 
-      value={{
-        openApps, 
-        restoreApp, 
-        closeApp,
-        minimizeApp, 
-        maximizeApp,
-        openApp
-      }}
+    <StyledCalendarContainer
+      initial={{ y: "100%" }}
+      animate={{ y: "0%" }}
+      transition={{ type: "spring", stiffness: 70, damping: 20 }}
     >
-      <StyledDesktop>
-        {openApps.map((app, index) => (
-          <Window 
-            key={app.id}
-            title={app.name}
-            zIndex={app.zIndex}
-            onClick={() => bringToFront(app.id)}
-            id={app.id}
-            state={app.state}
-            openApp={openApp}
-          >
-            {app.component}
-          </Window>
-        ))}
-        {editorVisible && 
-          <Window
-            title="Text Editor"
-            onClick={() => bringToFront("Text Editor")}
-            id={uuidv4()}
-            state={'normal'}
-            openApp={openApp}
-          >
-            <TextEditor onEditorVisible={onEditorVisible} />
-          </Window>
-        }
-        <Taskbar toggleStartMenu={toggleStartMenu} />
-        {isStartMenuOpen && <StartMenu onLogout={onLogout} toggleStartMenu={toggleStartMenu} apps={apps.map(app => ({ ...app, open: () => openApp(app.name, app.component) }))} />}
-        <WeatherWidget />
-      </StyledDesktop>
-    </TaskbarContext.Provider>
+      <Calendar
+        localizer={localizer}
+        defaultDate={new Date()}
+        defaultView="month"
+        events={events}
+        style={{ height: "100%" }}
+        selectable
+        onSelectSlot={handleSelect}
+        onSelectEvent={handleSelectEvent}
+      />
+    </StyledCalendarContainer>
   );
 }
 
-export default Desktop;
+export default CalendarApp;
