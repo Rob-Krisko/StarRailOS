@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import dummyIcon from '../assets/dummy.png';
 
@@ -44,8 +44,26 @@ function StartMenu({ apps, onLogout, toggleStartMenu }) {
     toggleStartMenu();
   };
 
+  const menuRef = useRef(); // Create a ref for the menu
+  
+  // Click outside to close menu
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        toggleStartMenu();
+      }
+    }
+
+    // Bind the event listener
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [toggleStartMenu]);
+
   return (
-    <StyledMenu>
+    <StyledMenu ref={menuRef}> {/* Attach the ref here */}
       {apps.map((app, index) => (
         <MenuItem key={index} onClick={() => handleClick(app)}>
           <img src={dummyIcon} alt="app-icon" width={30} height={30} />
