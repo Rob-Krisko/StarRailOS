@@ -319,18 +319,15 @@ function Solitaire() {
   const handleDrop = (e, toStackIndex) => {
     e.preventDefault();
     const from = JSON.parse(e.dataTransfer.getData('text/plain'));
-
+  
     if (from.stack === undefined && from.pile !== 'discard' && from.pile !== 'foundation') return;
     if (from.stack === toStackIndex) return; // Can't move cards within the same stack
-
+  
     let fromStack;
     let movedCards;
     if (from.stack !== undefined) {
       fromStack = [...tableau[from.stack]];
       movedCards = fromStack.splice(from.index);
-      if (fromStack.length > 0) {
-        fromStack[fromStack.length - 1].faceUp = true;
-      }
     } else if (from.pile === 'discard') {
       fromStack = [...discard];
       movedCards = fromStack.splice(-1);
@@ -338,27 +335,32 @@ function Solitaire() {
       fromStack = [...foundations[from.foundation]];
       movedCards = fromStack.splice(-1);
     }
-
+  
     const toStack = [...tableau[toStackIndex]];
-
+  
     if (toStack.length === 0 || (isDifferentColor(toStack[toStack.length - 1], movedCards[0]) && valueOrder[toStack[toStack.length - 1].value] === valueOrder[movedCards[0].value] + 1)) {
       toStack.push(...movedCards);
+      // Moved the logic to flip card here
+      if (fromStack.length > 0) {
+        fromStack[fromStack.length - 1].faceUp = true;
+      }
     } else {
       fromStack.push(...movedCards);
     }
-
+  
     setTableau(prevTableau => prevTableau.map((stack, i) => {
       if (i === from.stack) return fromStack;
       if (i === toStackIndex) return toStack;
       return stack;
     }));
-
+  
     if (from.pile === 'discard') {
       setDiscard(fromStack);
     } else if (from.pile === 'foundation') {
       setFoundations(prevFoundations => prevFoundations.map((stack, i) => i === from.foundation ? fromStack : stack));
     }
-};
+  };
+  
 
   
   const checkVictory = (foundations) => {
