@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-//import styles from './Maze.module.css'; // Import the CSS module
 import styled from 'styled-components';
-import Asta from './asta_icon.png';
-import Kafka from './ace.jpg';
-import Bronya from './bronya_icon.png';
-import wall from './space_2.png';
-import floor from './floor.png'
+import Asta from '../assets/asta_icon.png';
+import Kafka from '../assets/cards/ace.jpg';
+import Bronya from '../assets/bronya_icon.png';
+import wall from '../assets/space_2.png';
+import floor from '../assets/floor.png'
 
 const Container = styled.div`
   display: grid;
@@ -15,8 +14,8 @@ const Container = styled.div`
 `;
 
 const Cell = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   background-image: url(${floor});
   background-size: cover;
 `;
