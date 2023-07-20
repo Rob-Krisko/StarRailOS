@@ -6,7 +6,7 @@ const StyledTaskbar = styled.div`
   position: absolute;
   bottom: 0;
   width: 100%;
-  height: 30px;
+  height: 40px;
   background-color: #282828;
   display: flex;
   align-items: center;
@@ -36,14 +36,16 @@ const AppIcon = styled.div`
   }
 `;
 
-const Clock = styled.div`
+const TimeAndDate = styled.button`
   color: #fff;
   border-left: 1px solid #fff;
   padding-left: 10px;
   margin-left: auto;
+  background: none;
+  border: none;
 `;
 
-function Taskbar({ toggleStartMenu }) {
+function Taskbar({ toggleStartMenu, toggleCalendar }) { // add toggleCalendar prop here
   const [time, setTime] = useState(new Date());
   const { openApps, restoreApp } = useContext(TaskbarContext);
 
@@ -58,7 +60,11 @@ function Taskbar({ toggleStartMenu }) {
       {openApps.map((app, index) => (
         <AppIcon key={index} onClick={() => restoreApp(app.id)}>{app.name}</AppIcon>
       ))}
-      <Clock>{time.toLocaleTimeString()}</Clock>
+      <TimeAndDate onClick={toggleCalendar}>
+        {time.toLocaleTimeString()}
+        <br />
+        {time.toLocaleDateString()}
+      </TimeAndDate>
     </StyledTaskbar>
   );
 }

@@ -5,6 +5,7 @@ import backgroundImage from './compromise.jpg';
 import Taskbar from './Taskbar';
 import StartMenu from './StartMenu';
 import Window from './Window';
+import CalendarApp from './CalendarApp';
 import Calculator from './Calculator';
 import TaskManager from './TaskManager';
 import TaskInput from './TaskInput';
@@ -60,9 +61,14 @@ function Desktop({ onLogout, onEditorVisible, editorVisible }) {
   const [openApps, dispatch] = useReducer(appsReducer, []);
   const [currentZIndex, setCurrentZIndex] = useState(0);
   const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const toggleStartMenu = () => {
     setIsStartMenuOpen(!isStartMenuOpen);
+  };
+
+  const toggleCalendar = () => {
+    setIsCalendarOpen(!isCalendarOpen);
   };
 
   const openApp = (name, component) => {
@@ -130,12 +136,14 @@ function Desktop({ onLogout, onEditorVisible, editorVisible }) {
             <TextEditor onEditorVisible={onEditorVisible} />
           </Window>
         }
-        <Taskbar toggleStartMenu={toggleStartMenu} />
+        <Taskbar toggleStartMenu={toggleStartMenu} toggleCalendar={toggleCalendar} />
         {isStartMenuOpen && <StartMenu onLogout={onLogout} toggleStartMenu={toggleStartMenu} apps={apps.map(app => ({ ...app, open: () => openApp(app.name, app.component) }))} />}
+        {isCalendarOpen && <CalendarApp />} {/* Here we're using your new CalendarApp component */}
         <WeatherWidget />
       </StyledDesktop>
     </TaskbarContext.Provider>
   );
+
 }
 
 export default Desktop;
