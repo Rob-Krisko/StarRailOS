@@ -42,7 +42,7 @@ function WeatherWidget() {
   const fetchWeather = (city) => {
     setIsLoading(true);
     setError(null);
-    fetch(`http://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=db65b051b1ce560a620362330f5e0542`)
+    fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=imperial&appid=db65b051b1ce560a620362330f5e0542`)
       .then(response => response.json())
       .then(data => {
         if (data.cod === '404') {
@@ -77,10 +77,10 @@ function WeatherWidget() {
             <WeatherTemp>{Math.round(weatherData.main.temp)}°F</WeatherTemp>
             {weatherData.weather.map((condition) => (
               <WeatherCondition key={condition.id}>
-                <img
-                  src={`http://openweathermap.org/img/w/${condition.icon}.png`}
-                  alt={condition.description}
-                />
+              <img
+                src={`https://openweathermap.org/img/w/${condition.icon}.png`}
+                alt={condition.description}
+              />
                 <span>{condition.description}</span>
               </WeatherCondition>
             ))}
