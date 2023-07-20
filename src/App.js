@@ -1,24 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import Login from './components/Login';
+import Desktop from './components/Desktop';
 
 function App() {
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || null);
+  const [editorVisible, setEditorVisible] = useState(false); // Add this line
+
+  const handleLogin = (username, password) => {
+    const user = { username, password };
+    localStorage.setItem('user', JSON.stringify(user));
+    setUser(user);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    user 
+      ? <Desktop onLogout={handleLogout} onEditorVisible={setEditorVisible} editorVisible={editorVisible}/> 
+      : <Login onLogin={handleLogin} />
   );
 }
 
