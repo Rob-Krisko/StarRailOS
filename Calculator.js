@@ -7,24 +7,24 @@ const Container = styled.div`
   align-items: center;
   height: 100%;
   width: 100%;
-  padding: 0 5px 10px; // added 5px padding left and right
-  box-sizing: border-box; // added box-sizing
+  padding: 0 5px 10px;
+  box-sizing: border-box;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #0ff;
 `;
-
-
 
 const Display = styled.div`
   width: 90%;
   height: 50px;
   padding: 10px;
-  background-color: #fff;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #0ff;
   text-align: right;
   margin-bottom: 10px;
-  border: 1px solid #000;
+  border: 1px solid #0ff;
   overflow: auto;
-  font-size: max(1.2em, min(4vw, 22px)); // min-max font size
+  font-size: max(1.2em, min(4vw, 22px));
 `;
-
 
 const ButtonGrid = styled.div`
   display: grid;
@@ -36,11 +36,17 @@ const ButtonGrid = styled.div`
 const Button = styled.button`
   padding: 10px;
   font-size: 16px;
-  background: linear-gradient(to bottom, #9dd5fa, #90cfea);
+  background-color: rgba(0, 0, 0, 0.6);
   border: none;
   border-radius: 5px;
-  box-shadow: 0px 5px #5b8e99;
-  color: #ffffff;
+  color: #0ff;
+  box-shadow: 0 0 5px #0ff;
+  &:hover {
+    background-color: rgba(0, 255, 255, 0.1);
+  }
+  &:active {
+    background-color: rgba(0, 255, 255, 0.2);
+  }
 `;
 
 const calculatorButtons = [
