@@ -5,9 +5,11 @@ const WidgetContainer = styled.div`
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #ddd;
   padding: 10px;
   border-radius: 5px;
+  box-shadow: 0px 0px 15px 5px rgba(0,255,255,.75);
 `;
 
 const WeatherForm = styled.form`
@@ -16,17 +18,32 @@ const WeatherForm = styled.form`
 
 const WeatherTitle = styled.h2`
   margin: 0;
+  color: #0ff;
 `;
 
 const WeatherTemp = styled.p`
   font-size: 1.5em;
   margin: 0;
+  color: #0ff;
 `;
 
 const WeatherCondition = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
+`;
+
+const Button = styled.button`
+  color: #0ff;
+  background-color: rgba(0,0,0,0.4);
+  border: 1px solid #0ff;
+  border-radius: 5px;
+  padding: 5px 10px;
+  margin-top: 10px;
+  cursor: pointer;
+  &:hover {
+    background-color: rgba(0,255,255,0.2);
+  }
 `;
 
 function WeatherWidget() {
@@ -77,16 +94,16 @@ function WeatherWidget() {
             <WeatherTemp>{Math.round(weatherData.main.temp)}°F</WeatherTemp>
             {weatherData.weather.map((condition) => (
               <WeatherCondition key={condition.id}>
-              <img
-                src={`https://openweathermap.org/img/w/${condition.icon}.png`}
-                alt={condition.description}
-              />
+                <img
+                  src={`https://openweathermap.org/img/w/${condition.icon}.png`}
+                  alt={condition.description}
+                />
                 <span>{condition.description}</span>
               </WeatherCondition>
             ))}
             <div>Humidity: {weatherData.main.humidity}%</div>
             <div>Wind: {weatherData.wind.speed} mph</div>
-            <button onClick={updateCity}>Change city</button>
+            <Button onClick={updateCity}>Change city</Button>
           </>
         )
       )}
