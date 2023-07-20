@@ -1,33 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import tingIcon from '../assets/ting.png';
+import yukIcon from '../assets/yuk.png';
 
 const Square = styled.button`
-  width: 60px;
-  height: 60px;
+  width: 100px;
+  height: 100px;
   margin: 0;
-  border: 1px solid #000;
-  font-size: 24px;
-  line-height: 60px;
-  text-align: center;
+  border: 3px solid #72032c;
+  background-color: transparent;
+  display: flex; // Add this
+  justify-content: center; // Add this
+  align-items: center; // Add this
+`;
+
+const IconImage = styled.img`
+  width: 90%;
+  height: 90%;
 `;
 
 const BoardRow = styled.div`
   display: flex;
   justify-content: center;
-  margin: 10px 0;
+  margin: 0 0;
 `;
 
 const Status = styled.div`
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 20px; // bigger margin
+  color: #72032c; // red wine color
+  font-size: 2em;
 `;
 
 const ResetButton = styled.button`
   display: block;
-  width: 100px;
+  width: 150px; // bigger button
   margin: 20px auto;
-  padding: 5px;
+  padding: 10px; // bigger padding
+  border: none;
+  background-color: #72032c; // red wine color
+  color: #ffffff;
+  font-size: 1.2em;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #a64452; // darker red wine color on hover
+  }
 `;
+
 
 function TicTacToe() {
   const [board, setBoard] = useState(Array(9).fill(null));
@@ -120,7 +140,12 @@ function TicTacToe() {
   }
 
   function renderSquare(i) {
-    return <Square onClick={() => handleClick(i)}>{board[i]}</Square>;
+    return (
+      <Square onClick={() => handleClick(i)}>
+        {board[i] === 'X' && <IconImage src={tingIcon} alt="ting-icon" />}
+        {board[i] === 'O' && <IconImage src={yukIcon} alt="yuk-icon" />}
+      </Square>
+    );
   }
 
   let status;
