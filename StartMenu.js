@@ -7,9 +7,9 @@ const StyledMenu = styled.div`
   bottom: 30px;
   width: 200px;
   background-color: rgba(0, 0, 0, 0.8);
-  border: 1px solid #0ff;
+  border: 3px solid #800020; // Wine red border
   z-index: 9999;
-  color: #0ff;
+  color: #fff; 
 `;
 
 const MenuItem = styled.div`
@@ -17,11 +17,11 @@ const MenuItem = styled.div`
   align-items: center;
   gap: 10px;
   padding: 10px;
-  border-bottom: 1px solid #0ff;
+  border-bottom: 1px solid #800020; // Wine red border
   cursor: pointer;
 
   &:hover {
-    background-color: rgba(0, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1); 
   }
 `;
 
@@ -29,12 +29,12 @@ const LogoutButton = styled.button`
   padding: 10px;
   background: none;
   border: none;
-  color: #0ff;
+  color: #fff; 
   cursor: pointer;
   width: 100%;
 
   &:hover {
-    background-color: rgba(0, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.1); 
   }
 `;
 
@@ -48,7 +48,7 @@ function StartMenu({ apps, onLogout, toggleStartMenu }) {
     <StyledMenu>
       {apps.map((app, index) => (
         <MenuItem key={index} onClick={() => handleClick(app)}>
-          <img src={dummyIcon} alt="app-icon" width={20} height={20} />
+          <img src={dummyIcon} alt="app-icon" width={30} height={30} />
           {app.name}
         </MenuItem>
       ))}
