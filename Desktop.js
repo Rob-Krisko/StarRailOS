@@ -2,7 +2,7 @@ import React, { useState, useReducer } from 'react';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
 import backgroundImage from './compromise.jpg';
-import TaskBar from './TaskBar';
+import Taskbar from './Taskbar';
 import StartMenu from './StartMenu';
 import Window from './Window';
 import Calculator from './Calculator';
@@ -12,6 +12,7 @@ import ToDoApp from './ToDoApp';
 import TextEditor from './TextEditor';
 import FileExplorer from './FileExplorer';
 import GameLauncher from './GameLauncher';
+import MusicPlayer from './MusicPlayer';
 import WeatherWidget from './WeatherWidget';
 import { TaskbarContext } from './TaskbarContext';
 
@@ -53,6 +54,7 @@ function Desktop({ onLogout, onEditorVisible, editorVisible }) {
     { name: 'Text Editor', component: <TextEditor /> },
     { name: 'File Explorer', component: <FileExplorer onEditorVisible={onEditorVisible} /> },
     { name: 'Game Launcher', component: <GameLauncher /> },
+    { name: 'Music Player', component: <MusicPlayer /> },
   ]);
 
   const [openApps, dispatch] = useReducer(appsReducer, []);
