@@ -12,7 +12,7 @@ const StyledCalendarContainer = styled(motion.div)`
   bottom: 40px;
   right: 0px;
   width: 600px; 
-  height: 450px; 
+  height: 375px; 
   padding: 10px;
   box-sizing: border-box;
   border: 1px solid #72032c;

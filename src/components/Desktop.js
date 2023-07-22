@@ -15,6 +15,9 @@ import FileExplorer from './FileExplorer';
 import GameLauncher from './GameLauncher';
 import MusicPlayer from './MusicPlayer';
 import WeatherWidget from './WeatherWidget';
+import ClockApp from './ClockApp';
+import Clock from './Clock';
+import Alarm from './Alarm';
 import { TaskbarContext } from './TaskbarContext';
 
 const StyledDesktop = styled.div`
@@ -56,6 +59,7 @@ function Desktop({ onLogout, onEditorVisible, editorVisible }) {
     { name: 'File Explorer', component: <FileExplorer onEditorVisible={onEditorVisible} /> },
     { name: 'Game Launcher', component: <GameLauncher /> },
     { name: 'Music Player', component: <MusicPlayer /> },
+    { name: 'Clock', component: <ClockApp /> },
   ]);
 
   const [openApps, dispatch] = useReducer(appsReducer, []);
@@ -143,7 +147,6 @@ function Desktop({ onLogout, onEditorVisible, editorVisible }) {
       </StyledDesktop>
     </TaskbarContext.Provider>
   );
-
 }
 
 export default Desktop;
