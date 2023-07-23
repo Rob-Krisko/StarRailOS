@@ -3,13 +3,16 @@ import { format } from 'date-fns';
 import styled from 'styled-components';
 
 const ClockWrapper = styled.div`
-  font-size: 3em; // Increased the size
-  color: #0FF; // Clock color
+  font-size: 3em;
+  color: #0FF;
   text-align: center;
   padding: 2em;
   border-radius: 5px;
   background: #000; 
+  font-family: 'Orbitron', sans-serif;
+  min-width: 400px;
 `;
+
 
 const Clock = () => {
   const [time, setTime] = useState(new Date());

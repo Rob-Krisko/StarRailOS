@@ -5,24 +5,29 @@ import TicTacToe from './TicTacToe';
 import CounterGame from './CounterGame';
 import Solitaire from './Solitaire';
 import Maze from './Maze';
+import Sudoku from './Sudoku';
+import SnakeGame from './SnakeGame';
 import bronyaIcon from '../assets/bronya_icon.png';
 import silverIcon from '../assets/silver_icon.png';
 import astaIcon from '../assets/asta_icon.png';
 import kafkaIcon from '../assets/kafka_icon.png';
+import trailIcon from '../assets/tb.png';
+import marchIcon from '../assets/march_icon.png';
 
 const GameLauncherContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
   padding: 20px;
-  justify-content: space-around;
+  justify-items: center;
 `;
+
 
 const GameCard = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 10px;
-  margin: 10px;
   border: 1px solid #000;
   border-radius: 5px;
   cursor: pointer;
@@ -32,7 +37,11 @@ const GameCard = styled.div`
   &:hover {
     transform: scale(1.05);
   }
+
+  width: 100%; // Set the width to 100%
+  max-width: 300px; // And set a maximum width
 `;
+
 
 
 const GameIcon = styled.img`
@@ -63,7 +72,18 @@ function GameLauncher() {
         name: "Maze",
         icon: kafkaIcon,
         component: <Maze />
-    }
+    },
+    {
+        name: "Sudoku",
+        icon: trailIcon,
+        component: <Sudoku />
+    },
+    {
+        name: "Snake Game",
+        icon: marchIcon,
+        component: <SnakeGame />
+    },
+
     // ...
     // add more games as needed
     // ...
