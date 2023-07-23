@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/StarRailOS/static/css/main.6b720ac2.css",
-    "main.js": "/StarRailOS/static/js/main.6fad087c.js",
+    "main.js": "/StarRailOS/static/js/main.b9887d94.js",
     "static/js/787.45764c71.chunk.js": "/StarRailOS/static/js/787.45764c71.chunk.js",
     "static/media/compromise.jpg": "/StarRailOS/static/media/compromise.fffb85920b02cf29443d.jpg",
     "static/media/floor.png": "/StarRailOS/static/media/floor.e8a0d1eece8bd9bdb1dc.png",
@@ -9,6 +9,7 @@
     "static/media/star-rail.mp3": "/StarRailOS/static/media/star-rail.6b7390a4f6d43e8c1bbb.mp3",
     "static/media/the-game-is-on.mp3": "/StarRailOS/static/media/the-game-is-on.25d2bfcee93933b4556e.mp3",
     "static/media/call-of-the-stars.mp3": "/StarRailOS/static/media/call-of-the-stars.c1b6f0621848c419716c.mp3",
+    "static/media/plus-icon.png": "/StarRailOS/static/media/plus-icon.cb2259910a76fbd74d65.png",
     "static/media/space_login.png": "/StarRailOS/static/media/space_login.ea87ccfa8cdd969f9cbe.png",
     "static/media/space.jpg": "/StarRailOS/static/media/space.89e29093e375df3d6d53.jpg",
     "static/media/snake-head.png": "/StarRailOS/static/media/snake-head.430b81b5b39d420e17f0.png",
@@ -30,17 +31,18 @@
     "static/media/snake-body.png": "/StarRailOS/static/media/snake-body.e4f68ff6ceeaa46643db.png",
     "static/media/card.jpg": "/StarRailOS/static/media/card.716cb110228a3457dc7f.jpg",
     "static/media/eight.jpg": "/StarRailOS/static/media/eight.724ede535c226cb21372.jpg",
+    "static/media/text-icon.png": "/StarRailOS/static/media/text-icon.c861b438f0bc012bba54.png",
     "static/media/march_icon.png": "/StarRailOS/static/media/march_icon.93ff906538e72a23025b.png",
     "static/media/silver_icon.png": "/StarRailOS/static/media/silver_icon.ba4bf4e096045bb53679.png",
     "static/media/bronya_icon.png": "/StarRailOS/static/media/bronya_icon.13b536f5a9b53b9c1fb1.png",
     "static/media/ting.png": "/StarRailOS/static/media/ting.10dfd88a37be1008fac6.png",
     "index.html": "/StarRailOS/index.html",
     "main.6b720ac2.css.map": "/StarRailOS/static/css/main.6b720ac2.css.map",
-    "main.6fad087c.js.map": "/StarRailOS/static/js/main.6fad087c.js.map",
+    "main.b9887d94.js.map": "/StarRailOS/static/js/main.b9887d94.js.map",
     "787.45764c71.chunk.js.map": "/StarRailOS/static/js/787.45764c71.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.6b720ac2.css",
-    "static/js/main.6fad087c.js"
+    "static/js/main.b9887d94.js"
   ]
 }
