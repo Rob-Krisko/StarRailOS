@@ -64,7 +64,7 @@ function StartMenu({ apps, onLogout, toggleStartMenu }) {
 
   return (
     <StyledMenu ref={menuRef}> {/* Attach the ref here */}
-      {apps.map((app, index) => (
+      {apps.sort((a, b) => a.name.localeCompare(b.name)).map((app, index) => (
         <MenuItem key={index} onClick={() => handleClick(app)}>
           <img src={dummyIcon} alt="app-icon" width={30} height={30} />
           {app.name}
@@ -73,6 +73,7 @@ function StartMenu({ apps, onLogout, toggleStartMenu }) {
       <LogoutButton onClick={onLogout}>Log out</LogoutButton>
     </StyledMenu>
   );
+
 }
 
 export default StartMenu;
