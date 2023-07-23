@@ -4,7 +4,6 @@ import snakeHead from '../assets/snake-head.png';
 import snakeBody from '../assets/snake-body.png';
 import foodImg from '../assets/food.png';
 
-
 const StyledSnakeGameContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -25,20 +24,25 @@ const StyledSnakeGameBoard = styled.div`
 
 const StyledSnakeGameCell = styled.div`
   position: absolute;
-  background-color: #4caf50;
   width: ${(props) => `${props.cellSize}px`};
   height: ${(props) => `${props.cellSize}px`};
   left: ${(props) => `${props.x * props.cellSize}px`};
   top: ${(props) => `${props.y * props.cellSize}px`};
 `;
 
-const StyledSnakeGameFood = styled.div`
-  position: absolute;
-  background-color: #f44336;
-  width: ${(props) => `${props.cellSize}px`};
-  height: ${(props) => `${props.cellSize}px`};
-  left: ${(props) => `${props.x * props.cellSize}px`};
-  top: ${(props) => `${props.y * props.cellSize}px`};
+const StyledSnakeGameFood = styled(StyledSnakeGameCell)`
+  background-image: url(${foodImg});
+  background-size: cover;
+`;
+
+const StyledSnakeHead = styled(StyledSnakeGameCell)`
+  background-image: url(${snakeHead});
+  background-size: cover;
+`;
+
+const StyledSnakeBody = styled(StyledSnakeGameCell)`
+  background-image: url(${snakeBody});
+  background-size: cover;
 `;
 
 const StyledGameStart = styled.div`
@@ -106,10 +110,10 @@ const GameOver = ({ onRestart, newHighScore, score }) => (
 
 const SnakeGame = () => {
   const boardSize = 25;
-  const cellSize = 20;
+  const cellSize = 25;
 
   const [snake, setSnake] = useState([{ x: 2, y: 2 }]);
-  const [food, setFood] = useState({ x: 5, y: 5 });
+  const [food, setFood] = useState({ x: 5, y: 5 });  
   const [direction, setDirection] = useState('right');
   const [gameOver, setGameOver] = useState(false);
   const [gameStarted, setGameStarted] = useState(null);
@@ -131,6 +135,7 @@ const SnakeGame = () => {
     }
     return { x, y };
   };
+  
 
   const checkCollision = (head) => {
     return head.x < 0 || head.x >= boardSize || head.y < 0 || head.y >= boardSize || snake.some(cell => cell.x === head.x && cell.y === head.y);
@@ -197,14 +202,27 @@ const SnakeGame = () => {
         boardSize={boardSize}
         cellSize={cellSize}
       >
-        {snake.map((cell, index) => (
-          <StyledSnakeGameCell
-            key={index}
-            cellSize={cellSize}
-            x={cell.x}
-            y={cell.y}
-          />
-        ))}
+        {snake.map((cell, index) => {
+          if (index === snake.length - 1) {
+            return (
+              <StyledSnakeHead
+                key={index}
+                cellSize={cellSize}
+                x={cell.x}
+                y={cell.y}
+              />
+            );
+          } else {
+            return (
+              <StyledSnakeBody
+                key={index}
+                cellSize={cellSize}
+                x={cell.x}
+                y={cell.y}
+              />
+            );
+          }
+        })}
         <StyledSnakeGameFood
           cellSize={cellSize}
           x={food.x}
