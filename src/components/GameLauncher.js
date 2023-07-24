@@ -7,12 +7,14 @@ import Solitaire from './Solitaire';
 import Maze from './Maze';
 import Sudoku from './Sudoku';
 import SnakeGame from './SnakeGame';
+import ConnectFour from './ConnectFour';
 import bronyaIcon from '../assets/bronya_icon.png';
 import silverIcon from '../assets/silver_icon.png';
 import astaIcon from '../assets/asta_icon.png';
 import kafkaIcon from '../assets/kafka_icon.png';
 import trailIcon from '../assets/tb.png';
 import marchIcon from '../assets/march_icon.png';
+import himekoIcon from '../assets/himeko_icon.png';
 
 const GameLauncherContainer = styled.div`
   display: grid;
@@ -82,6 +84,11 @@ function GameLauncher() {
         name: "Snake Game",
         icon: marchIcon,
         component: <SnakeGame />
+    },
+    {
+        name: "Connect Four",
+        icon: himekoIcon,
+        component: <ConnectFour />
     },
 
     // ...
