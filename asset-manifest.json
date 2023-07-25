@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/StarRailOS/static/css/main.6b720ac2.css",
-    "main.js": "/StarRailOS/static/js/main.5885d924.js",
+    "main.js": "/StarRailOS/static/js/main.ff13bdf2.js",
     "static/js/787.45764c71.chunk.js": "/StarRailOS/static/js/787.45764c71.chunk.js",
     "static/media/compromise.jpg": "/StarRailOS/static/media/compromise.fffb85920b02cf29443d.jpg",
     "static/media/floor.png": "/StarRailOS/static/media/floor.e8a0d1eece8bd9bdb1dc.png",
@@ -38,11 +38,11 @@
     "static/media/ting.png": "/StarRailOS/static/media/ting.10dfd88a37be1008fac6.png",
     "index.html": "/StarRailOS/index.html",
     "main.6b720ac2.css.map": "/StarRailOS/static/css/main.6b720ac2.css.map",
-    "main.5885d924.js.map": "/StarRailOS/static/js/main.5885d924.js.map",
+    "main.ff13bdf2.js.map": "/StarRailOS/static/js/main.ff13bdf2.js.map",
     "787.45764c71.chunk.js.map": "/StarRailOS/static/js/787.45764c71.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.6b720ac2.css",
-    "static/js/main.5885d924.js"
+    "static/js/main.ff13bdf2.js"
   ]
 }
