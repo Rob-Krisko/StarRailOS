@@ -1,122 +1,266 @@
-import React, { useState, useEffect, useContext } from 'react';
-import styled from 'styled-components';
-import { TaskbarContext } from './TaskbarContext';
-import TextEditor from './TextEditor';
-import fileIcon from '../assets/text-icon.png'; // Imported file icon
-import plusIcon from '../assets/plus-icon.png'; // Import your plus icon here
-import deleteIcon from '../assets/delete-icon.png'; // Import your delete icon here
+import React, { useState, useEffect } from 'react';
+import styled, { keyframes } from 'styled-components';
 
-const StyledExplorerContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  padding: 20px;
-  justify-items: center;
-`;
-
-const FileWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border: 1px solid #000; // Add a border to make the container more distinct
-  padding: 10px;
-  background-color: #fff;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-
-  &:hover {
-    background-color: #f0f0f0;
+const rotate = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 `;
 
-const FileIcon = styled.img`
-  width: 50px; // Adjust as needed
-  height: 50px; // Adjust as needed
-`;
-
-const FileName = styled.span`
-  margin-top: 10px;
-  text-align: center;
-  word-break: break-word;
-`;
-
-const NewFileButton = styled.button`
-  background: url(${plusIcon}) no-repeat center center; // Plus icon for the button
-  background-size: contain;
-  height: 50px; // Adjust as needed
-  border: none;
-  cursor: pointer;
-  display: flex; 
+const GameContainer = styled.div`
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 10px;
+  height: 100vh;
+  background: #000;
+  color: #fff;
 `;
 
-const DeleteFileButton = styled.button`
-  background: url(${deleteIcon}) no-repeat center center; // Delete icon for the button
-  background-size: contain;
-  width: 20px; // Adjust as needed
-  height: 20px; // Adjust as needed
-  border: none;
+const Board = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const Row = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+`;
+
+const Cell = styled.div`
+  width: 50px;
+  height: 50px;
+  background-color: ${props => props.color ? props.color : 'white'};
+  border-radius: 50%;
   cursor: pointer;
-  margin-top: 5px;
+
+  &:hover {
+    animation: ${rotate} 2s linear infinite;
+  }
 `;
 
-function FileExplorer() {
-  const { openApp } = useContext(TaskbarContext);
-  const [fileSystem, setFileSystem] = useState([]);
+const GameInfo = styled.div`
+  margin-top: 20px;
+  font-size: 24px;
+`;
 
-  useEffect(() => {
-    const keys = Object.keys(localStorage);
-    const files = keys.map((key) => {
-      const item = localStorage.getItem(key);
-      try {
-        const parsedItem = JSON.parse(item);
-        if (parsedItem && parsedItem.content && parsedItem.content.blocks) {
-          return {
-            name: key,
-            content: parsedItem.content
-          };
-        } else {
-          return null;
+function ConnectFour() {
+  const emptyBoard = Array(6).fill().map(() => Array(7).fill(null));
+  const [board, setBoard] = useState(emptyBoard);
+  const [currentPlayer, setCurrentPlayer] = useState('red');
+  const [winner, setWinner] = useState(null);
+
+  const checkWin = () => {
+    // Check rows for winner
+    for (let row = 0; row < 6; row++) {
+        for (let col = 0; col < 4; col++) {
+            if (board[row][col] &&
+                board[row][col] === board[row][col + 1] &&
+                board[row][col] === board[row][col + 2] &&
+                board[row][col] === board[row][col + 3]) {
+                return board[row][col];
+            }
         }
-      } catch (e) {
-        console.log(`Error parsing item with key ${key}: ${e}`);
-        return null;
-      }
-    }).filter(item => item !== null);
+    }
 
-    setFileSystem(files);
-  }, []);
+    // Check columns for winner
+    for (let col = 0; col < 7; col++) {
+        for (let row = 0; row < 3; row++) {
+            if (board[row][col] &&
+                board[row][col] === board[row + 1][col] &&
+                board[row][col] === board[row + 2][col] &&
+                board[row][col] === board[row + 3][col]) {
+                return board[row][col];
+            }
+        }
+    }
 
-  const openFile = (fileName, fileContent) => {
-    openApp("Text Editor", <TextEditor initialFile={{ fileName, fileContent }} />);
+    // Check diagonals (bottom left to top right) for winner
+    for (let row = 3; row < 6; row++) {
+        for (let col = 0; col < 4; col++) {
+            if (board[row][col] &&
+                board[row][col] === board[row - 1][col + 1] &&
+                board[row][col] === board[row - 2][col + 2] &&
+                board[row][col] === board[row - 3][col + 3]) {
+                return board[row][col];
+            }
+        }
+    }
+
+    // Check diagonals (top left to bottom right) for winner
+    for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 4; col++) {
+            if (board[row][col] &&
+                board[row][col] === board[row + 1][col + 1] &&
+                board[row][col] === board[row + 2][col + 2] &&
+                board[row][col] === board[row + 3][col + 3]) {
+                return board[row][col];
+            }
+        }
+    }
+
+    return null;
   };
 
-  const deleteFile = (fileName) => {
-    const confirmation = window.confirm("Are you sure you want to delete this file?");
-    if (confirmation) {
-      localStorage.removeItem(fileName);
-      setFileSystem(fileSystem.filter(file => file.name !== fileName));
+  const makeMove = (board, col, color) => {
+    for (let row = 5; row >= 0; row--) {
+      if (!board[row][col]) {
+        board[row][col] = color;
+        return;
+      }
+    }
+    throw new Error('Invalid move');
+  };
+
+  const isValidMove = (board, col) => {
+    return board[0][col] === null;
+  };
+
+  const scorePosition = (board, player) => {
+    let score = 0;
+
+    // Score horizontal
+    for (let row = 0; row < 6; row++) {
+        for (let col = 0; col <= 4; col++) {
+            if (board[row].slice(col, col + 4).every(i => i === player)) {
+                score += 100;
+            }
+        }
+    }
+
+    // Score vertical
+    for (let col = 0; col < 7; col++) {
+        for (let row = 0; row <= 3; row++) {
+            if (board[row][col] === player &&
+                board[row + 1][col] === player &&
+                board[row + 2][col] === player &&
+                board[row + 3][col] === player) {
+                score += 100;
+            }
+        }
+    }
+
+    // Score diagonal (/)
+    for (let row = 0; row <= 2; row++) {
+        for (let col = 0; col <= 3; col++) {
+            if (board[row][col] === player &&
+                board[row + 1][col + 1] === player &&
+                board[row + 2][col + 2] === player &&
+                board[row + 3][col + 3] === player) {
+                score += 100;
+            }
+        }
+    }
+
+    // Score diagonal (\)
+    for (let row = 3; row < 6; row++) {
+        for (let col = 0; col <= 3; col++) {
+            if (board[row][col] === player &&
+                board[row - 1][col + 1] === player &&
+                board[row - 2][col + 2] === player &&
+                board[row - 3][col + 3] === player) {
+                score += 100;
+            }
+        }
+    }
+
+    return score;
+};
+
+
+  const minimax = (board, depth, alpha, beta, maximizingPlayer) => {
+    const validColumns = [];
+    for (let col = 0; col < 7; col++) {
+      if (isValidMove(board, col)) {
+        validColumns.push(col);
+      }
+    }
+
+    if (depth === 0 || validColumns.length === 0) {
+      return scorePosition(board, 'yellow') - scorePosition(board, 'red');
+    }
+
+    if (maximizingPlayer) {
+      let maxEval = -Infinity;
+      for (let col of validColumns) {
+        let newBoard = [...board];
+        makeMove(newBoard, col, 'yellow');
+        let eval = minimax(newBoard, depth - 1, alpha, beta, false);
+        maxEval = Math.max(maxEval, eval);
+        alpha = Math.max(alpha, eval);
+        if (beta <= alpha) {
+          break;
+        }
+      }
+      return maxEval;
+    } else {
+      let minEval = Infinity;
+      for (let col of validColumns) {
+        let newBoard = [...board];
+        makeMove(newBoard, col, 'red');
+        let eval = minimax(newBoard, depth - 1, alpha, beta, true);
+        minEval = Math.min(minEval, eval);
+        beta = Math.min(beta, eval);
+        if (beta <= alpha) {
+          break;
+        }
+      }
+      return minEval;
     }
   };
 
-  const createNewFile = () => {
-    openApp("Text Editor", <TextEditor initialFile={null} />);
+  const handleCellClick = (col) => {
+    if (winner) return;
+    const newBoard = [...board];
+    try {
+      makeMove(newBoard, col, currentPlayer);
+      setBoard(newBoard);
+      setCurrentPlayer(currentPlayer === 'red' ? 'yellow' : 'red');
+    } catch (e) {
+      // Ignore invalid moves
+    }
   };
 
+  useEffect(() => {
+    const winner = checkWin();
+    setWinner(winner);
+    if (!winner && currentPlayer === 'yellow') {
+      let bestScore = -Infinity;
+      let move;
+      for (let col = 0; col < 7; col++) {
+        if (!isValidMove(board, col)) continue;
+        let newBoard = [...board];
+        makeMove(newBoard, col, 'yellow');
+        let score = minimax(newBoard, 3, -Infinity, Infinity, false);
+        if (score > bestScore) {
+          bestScore = score;
+          move = col;
+        }
+      }
+      handleCellClick(move);
+    }
+  }, [board, currentPlayer]);
+
   return (
-    <StyledExplorerContainer>
-      {fileSystem.map((file) => (
-        <FileWrapper key={file.name}>
-          <FileIcon src={fileIcon} alt="file icon" onClick={() => openFile(file.name, file.content)} />
-          <FileName>{file.name}</FileName>
-          <DeleteFileButton onClick={() => deleteFile(file.name)} />
-        </FileWrapper>
-      ))}
-      <NewFileButton onClick={createNewFile} />
-    </StyledExplorerContainer>
+    <GameContainer>
+      <Board>
+        {[...board].reverse().map((row, i) => (
+          <Row key={i}>
+            {row.map((cell, j) => (
+              <Cell key={j} color={cell} onClick={() => handleCellClick(j)} />
+            ))}
+          </Row>
+        ))}
+      </Board>
+      <GameInfo>Current Player: {currentPlayer}</GameInfo>
+      {winner && <GameInfo>Winner: {winner}</GameInfo>}
+    </GameContainer>
   );
 }
 
-export default FileExplorer;
+export default ConnectFour;
