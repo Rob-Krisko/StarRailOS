@@ -30,6 +30,7 @@ const StyledEditor = styled.div`
   box-sizing: border-box;
   width: 100%;
   height: 100%;
+  min-height: 300px;
   border: 1px solid #ddd;
   background: #fff;
   flex: 1;

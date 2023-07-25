@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useSpring, animated } from 'react-spring';  
 import styled, { keyframes } from 'styled-components';
+import connect1 from '../assets/kafka_icon.png';
+import connect2 from '../assets/silver_icon.png';
 
 const rotate = keyframes`
   from {
@@ -11,13 +14,14 @@ const rotate = keyframes`
 `;
 
 const GameContainer = styled.div`
+  font-family: 'Orbitron', sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: #000;
-  color: #fff;
+  background: #1a1a2e;
+  color: #e0e0e0;
 `;
 
 const Board = styled.div`
@@ -26,6 +30,9 @@ const Board = styled.div`
   gap: 10px;
   justify-content: center;
   align-items: flex-end;
+  background: #162447;
+  border-radius: 15px;
+  padding: 20px;
 `;
 
 const Row = styled.div`
@@ -34,21 +41,62 @@ const Row = styled.div`
   gap: 10px;
 `;
 
+const Disc = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: ${props => props.color === 'red' ? `url(${connect1})` : props.color === 'yellow' ? `url(${connect2})` : 'none'};
+  background-size: 130%;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 50%;
+`;
+
+const AnimatedDisc = animated(Disc);
+
 const Cell = styled.div`
-  width: 50px;
-  height: 50px;
-  background-color: ${props => props.color ? props.color : 'white'};
+  width: 70px;
+  height: 70px;
+  background-color: #1f4068; // Even darker blue for cells to resemble viewports
+  border: 1px solid #e0e0e0; // Light grey border
   border-radius: 50%;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
 
   &:hover {
     animation: ${rotate} 2s linear infinite;
+    border-color: #e43f5a;
+    font-family: 'Orbitron', sans-serif;
   }
+`;
+
+const GameLayout = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100vh;
+`;
+
+const InfoContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: #162447; // Same color as the board
+  border-radius: 15px;
+  margin-left: 20px;
+  min-width: 300px;
 `;
 
 const GameInfo = styled.div`
   margin-top: 20px;
   font-size: 24px;
+  color: #e0e0e0;
+  font-weight: bold; 
 `;
 
 const PreviewRow = styled(Row)`
@@ -63,6 +111,22 @@ const Column = styled.div`
   gap: 10px;
 `;
 
+const Button = styled.button`
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  padding: 10px;
+  margin-top: 20px;
+  cursor: pointer;
+  background: #1f4068;
+  color: #e0e0e0;
+  border: none;
+  border-radius: 5px;
+
+  &:hover {
+    background: #e43f5a;
+    color: #e0e0e0;
+  }
+`;
 
 const PreviewCell = styled(Cell)`
   background-color: ${props => props.color ? props.color : 'transparent'};
@@ -70,11 +134,12 @@ const PreviewCell = styled(Cell)`
   &:hover {
     background-color: ${props => props.color};
     animation: ${rotate} 2s linear infinite;
+    border-color: #e43f5a; // Red color when hovering to indicate selection
   }
 `;
 
-
-
+// Convert Cell to an animated component
+const AnimatedCell = animated(Cell);
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -85,7 +150,10 @@ function ConnectFour() {
   const [winner, setWinner] = useState(null);
   const [aiTurn, setAiTurn] = useState(false);
   const [previewCol, setPreviewCol] = useState(null);
-
+  const [discs, setDiscs] = useState({});
+  const [discToAnimate, setDiscToAnimate] = useState(null);
+  const [discsToDrop, setDiscsToDrop] = useState([]);
+  const [springs, setSprings] = useState({});
 
   const checkWin = () => {
     // Check rows for winner
@@ -143,12 +211,22 @@ function ConnectFour() {
     for (let row = 5; row >= 0; row--) {
       if (!board[row][col]) {
         board[row][col] = color;
+        const discId = `${color}-${col}-${row}`;
+        setDiscsToDrop(discs => [
+          ...discs,
+          {
+            id: discId,
+            from: '-600px',
+            to: '0px'
+          }
+        ]);
         return;
       }
     }
     throw new Error('Invalid move');
   };
-
+  
+  
   const isValidMove = (board, col) => {
     return board[0][col] === null;
   };
@@ -215,9 +293,6 @@ function ConnectFour() {
     return score;
   };
   
-  
-  
-    
   const minimax = (board, depth, alpha, beta, maximizingPlayer) => {
     const validColumns = [];
     for (let col = 0; col < 7; col++) {
@@ -267,75 +342,116 @@ function ConnectFour() {
       return minEval;
     }
   };
-  
 
-
-  const handleCellClick = (col) => {
-    console.log('Player clicked column: ', col); // New log
+  const handleCellClick = async (col) => {
     if (winner || aiTurn) return;
-    const newBoard = [...board];
+    const newBoard = JSON.parse(JSON.stringify(board));
     try {
       makeMove(newBoard, col, currentPlayer);
       setBoard(newBoard);
       setCurrentPlayer(currentPlayer === 'red' ? 'yellow' : 'red');
-      setAiTurn(true);  // After player makes a move, it becomes AI's turn
+      setAiTurn(true);
+      await delay(500);
     } catch (e) {
       // Ignore invalid moves
     }
   };
+
+  useEffect(() => {
+    if (discsToDrop.length > 0) {
+      const disc = discsToDrop[0];
+      setDiscToAnimate(disc);
+      setDiscsToDrop(discs => discs.slice(1));
+    }
+  }, [discsToDrop]);
   
   useEffect(() => {
-    const depth = 7;  // choose a number that suits your game's performance needs
+    if (discToAnimate) {
+      const { id, from, to } = discToAnimate;
+      const config = { to: { top: to }, from: { top: from }, config: { duration: 500 } };
+      setSprings(springs => ({ ...springs, [id]: config }));
+      setDiscToAnimate(null);
+    }
+  }, [discToAnimate]);
+  
+  useEffect(() => {
+    const depth = 15;  // choose a number that suits your game's performance needs
     const alpha = -Infinity;
     const beta = Infinity;
     const winner = checkWin();
     setWinner(winner);
     if (!winner && aiTurn) {
-        let bestScore = -Infinity;
-        let bestMove;
-        for (let col = 0; col < 7; col++) {
-          if (!isValidMove(board, col)) continue;
-          let newBoard = JSON.parse(JSON.stringify(board)); // Deep copy the board
-          makeMove(newBoard, col, 'yellow');  // Temporarily make the move on the new board
-          let score = minimax(newBoard, depth - 1, alpha, beta, false);
-          console.log(`Column: ${col}, Score: ${score}`); // Log AI progress
-          if (score > bestScore) {
-            bestScore = score;
-            bestMove = col;
-          }
+      let bestScore = -Infinity;
+      let bestMove;
+      for (let col = 0; col < 7; col++) {
+        if (!isValidMove(board, col)) continue;
+        let newBoard = JSON.parse(JSON.stringify(board)); // Deep copy the board
+        makeMove(newBoard, col, 'yellow');  // Temporarily make the move on the new board
+        let score = minimax(newBoard, depth - 1, alpha, beta, false);
+        console.log(`Column: ${col}, Score: ${score}`); // Log AI progress
+        if (score > bestScore) {
+          bestScore = score;
+          bestMove = col;
         }
-        if (bestMove !== undefined) {
-          const newBoard = JSON.parse(JSON.stringify(board)); // Deep copy the board again
-          makeMove(newBoard, bestMove, 'yellow'); // Make the best move on the real board
-          console.log('AI made move in column: ', bestMove); // New log
-          setBoard(newBoard);
-          setCurrentPlayer('red');
-        }
-        setAiTurn(false);  // After AI makes a move, it's no longer AI's turn
       }
-      
+      if (bestMove !== undefined) {
+        const newBoard = JSON.parse(JSON.stringify(board)); // Deep copy the board again
+        makeMove(newBoard, bestMove, 'yellow');
+        setBoard(newBoard);
+        setCurrentPlayer('red');
+        setAiTurn(false);
+      }
+    }
   }, [board, currentPlayer, aiTurn, setAiTurn]);
+
+  const resetGame = () => {
+    setBoard(emptyBoard);
+    setCurrentPlayer('red');
+    setWinner(null);
+    setAiTurn(false);
+    setPreviewCol(null);
+    setDiscs({});
+  };
   
   return (
     <GameContainer>
-      <Board>
-        {Array(7).fill(null).map((_, colIndex) => (
-          <Column key={colIndex} onMouseEnter={() => setPreviewCol(colIndex)} onMouseLeave={() => setPreviewCol(null)}>
-            <PreviewCell color={colIndex === previewCol ? currentPlayer : null} />
-            {[...board].map((row, rowIndex) => (
-              <Cell
-                key={rowIndex * 7 + colIndex}
-                color={row[colIndex]}
-                onClick={() => handleCellClick(colIndex)}
-              />
-            ))}
-          </Column>
-        ))}
-      </Board>
-      <GameInfo>Current Player: {currentPlayer}</GameInfo>
-      {winner && <GameInfo>Winner: {winner}</GameInfo>}
+      <GameLayout>
+        <Board>
+          {Array(7).fill(null).map((_, colIndex) => (
+            <Column 
+              key={colIndex} 
+              onMouseEnter={() => setPreviewCol(colIndex)} 
+              onMouseLeave={() => setPreviewCol(null)}
+              onClick={() => handleCellClick(colIndex)}
+            >
+              <PreviewCell color={colIndex === previewCol ? currentPlayer : null}>
+                <Disc color={colIndex === previewCol ? currentPlayer : null} />
+              </PreviewCell>
+              {board.map((row, rowIndex) => {
+                const color = row[colIndex];
+                const discId = `${color}-${colIndex}-${rowIndex}`;
+                const spring = springs[discId] || { to: { top: '0px' }, from: { top: '0px' } };
+                return (
+                  <Cell key={`${colIndex}-${rowIndex}`}>
+                    <AnimatedDisc
+                      color={color}
+                      style={spring}
+                    />
+                  </Cell>
+                );
+              })}
+            </Column>
+          ))}
+        </Board>
+        <InfoContainer>
+          <GameInfo>Current Player: {currentPlayer}</GameInfo>
+          {winner && <GameInfo>Winner: {winner}</GameInfo>}
+          <Button onClick={resetGame}>Reset Game</Button>
+        </InfoContainer>
+      </GameLayout>
     </GameContainer>
   );
+  
   
 }
 
